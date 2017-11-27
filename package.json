@@ -1,0 +1,55 @@
+{
+  "name": "koa-rest",
+  "version": "1.0.0",
+  "description": "koa-rest sample",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server/ --exec babel-node",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/superman66/koa-rest.git"
+  },
+  "keywords": [
+    "koa",
+    "rest"
+  ],
+  "author": "superman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/superman66/koa-rest/issues"
+  },
+  "homepage": "https://github.com/superman66/koa-rest#readme",
+  "dependencies": {
+    "babel-polyfill": "^6.5.0",
+    "bcrypt": "^1.0.3",
+    "glob": "^7.1.1",
+    "jsonwebtoken": "^7.4.3",
+    "koa": "^2.0.0-alpha.7",
+    "koa-bodyparser": "^3.0.0",
+    "koa-cors": "0.0.16",
+    "koa-helmet": "^2.0.0",
+    "koa-jwt": "^2.2.4",
+    "koa-logger": "^2.0.0",
+    "koa-router": "^7.0.0",
+    "koa-static": "^4.0.1",
+    "mongoose": "^4.4.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-syntax-async-functions": "^6.5.0",
+    "babel-plugin-transform-async-to-generator": "^6.5.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.3.13",
+    "chai": "^3.5.0",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "nodemon": "^1.8.1",
+    "should": "^11.1.2",
+    "supertest": "^2.0.1"
+  }
+}
