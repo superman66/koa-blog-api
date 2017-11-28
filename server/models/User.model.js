@@ -1,6 +1,4 @@
-import mongoose from 'mongoose'
-
-const Schema = mongoose.Schema
+import mongoose, { Schema } from 'mongoose'
 
 const UserSchema = new Schema({
   username: String,
@@ -9,12 +7,10 @@ const UserSchema = new Schema({
 
 UserSchema
   .virtual('userInfo')
-  .get(function() {
+  .get(function () {
     return {
       username: this.username,
     }
   })
 
-
-const User = mongoose.model('User', UserSchema)
-export default User
+export default mongoose.model('User', UserSchema)
