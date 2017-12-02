@@ -5,9 +5,16 @@ import { PostStatus } from '../constants/PostStatus'
  * 文章Model
  */
 const PostSchema = new Schema({
-  title: String,
+  title: {
+    type: String,
+    required: true,
+  },
   desc: String,
-  author: String,
+  author: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  content: String,
   tags: [{
     type: Schema.Types.ObjectId,
     ref: 'Tag',
@@ -31,8 +38,14 @@ const PostSchema = new Schema({
     type: Number,
     default: 1,
   },
-  createTime: Date,
-  updateTime: Date,
+  createTime: {
+    type: Date,
+    default: Date.now(),
+  },
+  updateTime: {
+    type: Date,
+    default: Date.now(),
+  },
 })
 
 const Post = mongoose.model('Post', PostSchema)

@@ -51,7 +51,7 @@ class CategoryController {
 
       ctx.status = 200;
       ctx.body = {
-        message: '添加成功',
+        message: '操作成功',
       }
     } catch (error) {
       ctx.throw(500)
@@ -78,7 +78,7 @@ class CategoryController {
       })
       ctx.status = 200;
       ctx.body = {
-        message: '更新成功',
+        message: '操作成功',
         category,
       }
     } catch (error) {
@@ -96,7 +96,7 @@ class CategoryController {
         await Category.findByIdAndRemove(body.id)
         ctx.status = 200
         ctx.body = {
-          message: '删除成功',
+          message: '操作成功',
         }
       }
     } catch (error) {
