@@ -8,7 +8,7 @@ import jwt from 'koa-jwt'
 import serve from 'koa-static'
 import routing from './routes'
 import { port, connexionString, secret } from './config/index'
-import errorHandle from './middlewares/errorHandle'
+import * as errorHandle from './middlewares/errorHandle'
 
 mongoose.connect(connexionString)
 // mongoose promise 风格 [mongoose.Promise = require('bluebird')]
@@ -19,7 +19,8 @@ const app = new Koa();
 
 // apply middlewares
 app
-  .use(errorHandle)
+  .use(errorHandle.pageNotFound)
+  .use(errorHandle.authentication)
   .use(jwt({
     secret,
   }).unless({
