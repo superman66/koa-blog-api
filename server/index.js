@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import helmet from 'koa-helmet'
 import cors from 'koa-cors'
 import jwt from 'koa-jwt'
-// import serve from 'koa-static'
+import serve from 'koa-static'
 import routing from './routes'
 import { port, connexionString, secret } from './config/index'
 import errorHandle from './middlewares/errorHandle'
@@ -25,6 +25,7 @@ app
   }).unless({
     path: [/\/register/, /\/login/],
   }))
+  .use(serve('./public'))
   .use(logger())
   .use(bodyParser())
   .use(helmet())

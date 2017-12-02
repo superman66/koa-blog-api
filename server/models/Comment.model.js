@@ -4,7 +4,7 @@ import { CommentStatus } from '../constants/PostStatus';
 const CommentSchema = new Schema({
   // 文章id
   articleId: {
-    id: Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Post',
   },
   // 评论内容

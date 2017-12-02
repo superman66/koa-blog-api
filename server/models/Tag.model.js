@@ -1,7 +1,10 @@
 import mongoose, { Schema } from 'mongoose'
 
 const TagShema = new Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+  },
   createTime: {
     type: Date,
     default: Date.now,
