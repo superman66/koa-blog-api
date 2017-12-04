@@ -6,10 +6,9 @@
  */
 export default async function errorHandle(ctx, next) {
   try {
-    console.log(ctx);
-    if (ctx.response.status === 404) {
-      ctx.throw(404)
-    }
+    // if (ctx.response.status === 404) {
+    //   ctx.throw(404)
+    // }
     await next()
   } catch (err) {
     if (err.status === 401) {

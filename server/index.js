@@ -16,8 +16,8 @@ mongoose.Promise = global.Promise
 
 // create Koa application
 const app = new Koa();
-router(app)
 // apply middlewares
+
 app
   .use(errorHandle)
   .use(jwt({
@@ -30,8 +30,7 @@ app
   .use(bodyParser())
   .use(helmet())
   .use(cors())
-
-
+router(app)
 // Start application
 app.listen(port, () => console.log(`✅  The server is running at http://localhost:${port}/`))
 

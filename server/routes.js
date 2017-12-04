@@ -12,7 +12,7 @@ const router = new Router()
 router.prefix(`/${baseApi}`)
 export default function (app) {
   router.use('', login.routes(), login.allowedMethods())
-  router.use('/user', users.routes(), users.allowedMethods())
+  router.use('/users', users.routes(), users.allowedMethods())
   router.use('/category', category.routes(), category.allowedMethods())
   router.use('/comment', comment.routes(), comment.allowedMethods())
   router.use('/post', post.routes(), post.allowedMethods())

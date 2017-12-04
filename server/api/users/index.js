@@ -3,6 +3,8 @@ import UserController from './user.controller'
 
 const router = new Router();
 
-router.get('/', UserController.getUsers)
+router.get('/', UserController.users)
+router.patch('/:id', UserController.update)
+router.del('/:id', UserController.remove)
 
 export default router

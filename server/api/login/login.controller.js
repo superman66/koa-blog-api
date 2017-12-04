@@ -4,6 +4,7 @@ import jsonwebtoken from 'jsonwebtoken'
 // ensure import UserModel before use model('user')
 import UserModel from '../../models/User.model'
 import { secret } from '../../config/index';
+import objectToFormFieldArray from '../../utils/objectToArray';
 
 
 const User = mongoose.model('User');
@@ -55,10 +56,12 @@ class LoginController {
   async register(ctx) {
     const { body } = ctx.request;
     try {
-      if (!body.username || !body.password) {
+      if (!body.password) {
         ctx.status = 400;
         ctx.body = {
-          error: `expected an object with username, password but got: ${body}`,
+          errors: [
+            { password: '密码不能为空' },
+          ],
         }
         return;
       }
@@ -70,15 +73,23 @@ class LoginController {
         ctx.status = 200;
         ctx.body = {
           message: '注册成功',
-          user,
+          user: user.userInfo,
         }
       } else {
-        ctx.status = 406;
+        ctx.status = 400;
         ctx.body = {
           message: '用户名已经存在',
         }
       }
     } catch (error) {
+      // 若存在字段验证错误
+      if (error.errors) {
+        ctx.status = 400
+        ctx.body = {
+          errors: objectToFormFieldArray(error.errors),
+        }
+        return;
+      }
       ctx.throw(500)
     }
   }
