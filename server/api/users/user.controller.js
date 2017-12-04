@@ -19,40 +19,45 @@ class UserController {
       page,
       pagesize = pagination.PAGE_SIZE,
     } = ctx.query
-    // 使用分页
-    if (page !== undefined) {
-      page = parseInt(page, 0)
-      pagesize = parseInt(pagesize, 0)
-      let sortConfig = {}
-      if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
-        sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
-      }
+    try {
+      // 使用分页
+      if (page !== undefined) {
+        page = parseInt(page, 0)
+        pagesize = parseInt(pagesize, 0)
+        let sortConfig = {}
+        if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
+          sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
+        }
 
-      const totalNumber = await User.count()
-      const users = await User.find()
-        .skip(pagesize * (page - 1))
-        .limit(pagesize)
-        .sort(sortConfig)
-        .select('_id username email gender')
-      ctx.status = 200
-      ctx.body = {
-        page: {
-          page,
-          pagesize,
-          total: totalNumber,
-        },
-        data: {
-          users,
-        },
+        const total = await User.count()
+        const users = await User.find()
+          .skip(pagesize * (page - 1))
+          .limit(pagesize)
+          .sort(sortConfig)
+          .select('_id username email gender createTime updateTime')
+        ctx.status = 200
+        ctx.body = {
+          page: {
+            page,
+            pagesize,
+            total,
+          },
+          data: {
+            users,
+          },
+        }
+      } else {
+        const users = await User.find()
+          .select('_id username email gender createTime updateTime')
+        ctx.status = 200
+        ctx.body = {
+          data: {
+            users,
+          },
+        }
       }
-    } else {
-      const users = await User.find()
-      ctx.status = 200
-      ctx.body = {
-        data: {
-          users,
-        },
-      }
+    } catch (error) {
+      ctx.throw(500)
     }
   }
 
@@ -61,7 +66,7 @@ class UserController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { body } = ctx.request
+    let { body } = ctx.request
     const { id } = ctx.params
     try {
       if (id !== undefined || id !== '') {
@@ -71,6 +76,7 @@ class UserController {
            * 关于update后 user 不是最新的的问题，添加 {new: true}
            * https://stackoverflow.com/questions/32811510/mongoose-findoneandupdate-doesnt-return-updated-document
            */
+          body.updateTime = Date.now()
           user = await User.findByIdAndUpdate(id, body, { new: true })
           ctx.status = 200
           ctx.body = {

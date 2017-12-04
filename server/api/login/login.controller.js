@@ -30,13 +30,15 @@ class LoginController {
         ctx.status = 200
         ctx.body = {
           message: '登录成功',
-          user: user.userInfo,
-          // 生成 token 返回给客户端
-          token: jsonwebtoken.sign({
-            data: user,
-            // 设置 token 过期时间
-            exp: Math.floor(Date.now() / 1000) + (60 * 60), // 60 seconds * 60 minutes = 1 hour
-          }, secret),
+          data: {
+            user: user.userInfo,
+            // 生成 token 返回给客户端
+            token: jsonwebtoken.sign({
+              data: user,
+              // 设置 token 过期时间
+              exp: Math.floor(Date.now() / 1000) + (60 * 60), // 60 seconds * 60 minutes = 1 hour
+            }, secret),
+          },
         }
       } else {
         ctx.status = 401
@@ -73,7 +75,9 @@ class LoginController {
         ctx.status = 200;
         ctx.body = {
           message: '注册成功',
-          user: user.userInfo,
+          data: {
+            user: user.userInfo,
+          },
         }
       } else {
         ctx.status = 400;
