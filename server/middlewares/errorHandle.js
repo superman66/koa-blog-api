@@ -1,10 +1,17 @@
+
 /**
- * jwt 错误处理
+ * 错误处理
  * @param {*} ctx
  * @param {*} next
  */
-export function authentication(ctx, next) {
-  return next().catch((err) => {
+export default async function errorHandle(ctx, next) {
+  try {
+    console.log(ctx);
+    if (ctx.response.status === 404) {
+      ctx.throw(404)
+    }
+    await next()
+  } catch (err) {
     if (err.status === 401) {
       ctx.status = 401;
       ctx.body = {
@@ -13,15 +20,5 @@ export function authentication(ctx, next) {
     } else {
       throw err;
     }
-  });
-}
-
-/**
- * 404 处理
- * @param {*} ctx
- */
-export function pageNotFound(ctx) {
-  if (ctx.status === 404) {
-    ctx.throw(404)
   }
 }
