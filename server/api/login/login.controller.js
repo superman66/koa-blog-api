@@ -5,6 +5,7 @@ import jsonwebtoken from 'jsonwebtoken'
 import UserModel from '../../models/User.model'
 import { secret } from '../../config/index';
 import objectToFormFieldArray from '../../utils/objectToArray';
+import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 
 const User = mongoose.model('User');
@@ -47,7 +48,7 @@ class LoginController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -86,15 +87,7 @@ class LoginController {
         }
       }
     } catch (error) {
-      // 若存在字段验证错误
-      if (error.errors) {
-        ctx.status = 400
-        ctx.body = {
-          errors: objectToFormFieldArray(error.errors),
-        }
-        return;
-      }
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 

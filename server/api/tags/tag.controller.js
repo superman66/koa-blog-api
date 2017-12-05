@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import { isNumber, isNullOrUndefined } from 'util';
 import TagModel from '../../models/Tag.model'
 import * as pagination from '../../constants/Pagination'
+import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 
 const Tag = mongoose.model('Tag')
@@ -58,7 +59,7 @@ class TagController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -69,8 +70,8 @@ class TagController {
   async add(ctx) {
     const { body } = ctx.request
     try {
-      let tag = await Tag.find({ name: body.name })
-      if (!tag.length) {
+      let tag = await Tag.findOne({ name: body.name })
+      if (!tag) {
         tag = await Tag.create(body)
         ctx.status = 200
         ctx.body = {
@@ -86,7 +87,7 @@ class TagController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -95,7 +96,7 @@ class TagController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.request.body
+    const { id } = ctx.request.params
     try {
       if (isNullOrUndefined(id) || id === '') {
         ctx.status = 400
@@ -110,7 +111,7 @@ class TagController {
         message: '操作成功',
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -119,39 +120,27 @@ class TagController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { id, name } = ctx.request.body
+    const { name } = ctx.request.body
+    const { id } = ctx.request.params
     try {
-      if (isNullOrUndefined(id) || id === '') {
-        ctx.status = 400
+      let tag = await Tag.findOne({ name })
+      if (tag) {
+        tag = await Tag.findByIdAndUpdate(id, ctx.request.body, { new: true })
+        ctx.status = 200
         ctx.body = {
-          message: 'id不能为空',
-        }
-        return;
-      } else if (isNullOrUndefined(name) || name === '') {
-        ctx.status = 400
-        ctx.body = {
-          message: '标签名称不能为空',
+          message: '操作成功',
+          data: {
+            tag,
+          },
         }
       } else {
-        let tag = await Tag.find({ name })
-        if (!tag.length) {
-          tag = await Tag.findByIdAndUpdate(id, ctx.request.body, { new: true })
-          ctx.status = 200
-          ctx.body = {
-            message: '操作成功',
-            data: {
-              tag,
-            },
-          }
-        } else {
-          ctx.status = 400
-          ctx.body = {
-            message: '标签名称已存在',
-          }
+        ctx.status = 400
+        ctx.body = {
+          message: '标签名称已存在',
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 }

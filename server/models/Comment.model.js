@@ -3,7 +3,7 @@ import { CommentStatus } from '../constants/PostStatus';
 
 const CommentSchema = new Schema({
   // 文章id
-  articleId: {
+  article: {
     type: Schema.Types.ObjectId,
     ref: 'Post',
   },
@@ -16,7 +16,8 @@ const CommentSchema = new Schema({
   // 评论的状态
   status: {
     type: Number,
-    default: CommentStatus.underReview,
+    // 默认评论无需审核
+    default: CommentStatus.passReview,
   },
   likes: {
     type: Number,

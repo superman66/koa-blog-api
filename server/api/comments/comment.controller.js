@@ -10,13 +10,13 @@ class CommentController {
    */
   async add(ctx) {
     const {
-      articleId,
+      article,
       content,
       name,
       website,
     } = ctx.request.body;
     try {
-      if (articleId === undefined || articleId === '') {
+      if (article === undefined || article === '') {
         ctx.status = 400
         ctx.body = {
           message: '文章id不能为空',
@@ -28,7 +28,7 @@ class CommentController {
         }
       } else {
         await Comment.create({
-          articleId,
+          article,
           content,
           name,
           website,
@@ -64,17 +64,17 @@ class CommentController {
   }
 
   async getCommentsById(ctx) {
-    const { articleId } = ctx.request.body
+    const { article } = ctx.request.body
 
     try {
-      if (articleId === undefined || articleId === '') {
+      if (article === undefined || article === '') {
         ctx.status = 400
         ctx.body = {
           message: '文章id不能为空',
         }
         return;
       }
-      const comments = await Comment.find({ articleId })
+      const comments = await Comment.find({ article })
       ctx.status = 200
       ctx.body = {
         results: comments,

@@ -58,7 +58,7 @@ class CategoryController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -111,41 +111,22 @@ class CategoryController {
     const { body } = ctx.request
     const { id } = ctx.params
     try {
-      if (!isNullOrUndefined(id) && id !== '') {
-        // 如果 objectId 是有效的
-        if (mongoose.Types.ObjectId.isValid(id)) {
-          let category = await Category.findOne({ name: body.name });
-          if (!category) {
-            category = await Category.findByIdAndUpdate(id, {
-              name: body.name,
-              updateTime: Date.now(),
-            }, { new: true })
-            ctx.status = 200;
-            ctx.body = {
-              message: '操作成功',
-              category,
-            }
-          } else {
-            ctx.status = 400;
-            ctx.body = {
-              errors: [
-                { name: '分类已存在' },
-              ],
-            }
-          }
-        } else {
-          ctx.status = 400;
-          ctx.body = {
-            errors: [
-              { name: 'id不是有效的objectId' },
-            ],
-          }
+      let category = await Category.findOne({ name: body.name });
+      if (!category) {
+        category = await Category.findByIdAndUpdate(id, {
+          name: body.name,
+          updateTime: Date.now(),
+        }, { new: true })
+        ctx.status = 200;
+        ctx.body = {
+          message: '操作成功',
+          category,
         }
       } else {
         ctx.status = 400;
         ctx.body = {
           errors: [
-            { name: '分类id不能为空' },
+            { name: '分类名称已存在' },
           ],
         }
       }
@@ -168,7 +149,7 @@ class CategoryController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 

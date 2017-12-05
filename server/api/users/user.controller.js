@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as pagination from '../../constants/Pagination'
-import objectToFormFieldArray from '../../utils/objectToArray';
+import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 const User = mongoose.model('User')
 
@@ -57,7 +57,7 @@ class UserController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -69,41 +69,27 @@ class UserController {
     let { body } = ctx.request
     const { id } = ctx.params
     try {
-      if (id !== undefined || id !== '') {
-        let user = await User.find({ username: body.username });
-        if (!user.length) {
-          /**
-           * 关于update后 user 不是最新的的问题，添加 {new: true}
-           * https://stackoverflow.com/questions/32811510/mongoose-findoneandupdate-doesnt-return-updated-document
-           */
-          body.updateTime = Date.now()
-          user = await User.findByIdAndUpdate(id, body, { new: true })
-          ctx.status = 200
-          ctx.body = {
-            message: '操作成功',
-            user: user.userInfo,
-          }
-        } else {
-          ctx.status = 400;
-          ctx.body = {
-            message: '用户名已经存在',
-          }
+      let user = await User.findOne({ username: body.username });
+      if (!user) {
+        /**
+         * 关于update后 user 不是最新的的问题，添加 {new: true}
+         * https://stackoverflow.com/questions/32811510/mongoose-findoneandupdate-doesnt-return-updated-document
+         */
+        body.updateTime = Date.now()
+        user = await User.findByIdAndUpdate(id, body, { new: true })
+        ctx.status = 200
+        ctx.body = {
+          message: '操作成功',
+          user: user.userInfo,
         }
       } else {
         ctx.status = 400;
         ctx.body = {
-          message: '用户id不能为空',
+          message: '用户名已经存在',
         }
       }
     } catch (error) {
-      if (error.errors) {
-        ctx.status = 400
-        ctx.body = {
-          errors: objectToFormFieldArray(error.errors),
-        }
-        return;
-      }
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -120,7 +106,7 @@ class UserController {
         message: '操作成功',
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 }
