@@ -1,31 +1,64 @@
 import mongoose from 'mongoose'
+import { isNullOrUndefined, isNumber } from 'util';
 import CategoryModel from './../../models/Category.model'
+import objectToFormFieldArray from '../../utils/objectToArray';
+import * as pagination from '../../constants/Pagination'
+import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 const Category = mongoose.model('Category')
 
 class CategoryController {
-
-  /**
-   * 检查分类是否存在
-   * @param {*} ctx
+  /** 分页列表
+   *  page：当前页数
+   *  pagesize: 每页数量
+   *  sortColunm 排序字段
+   *  orderType desc asc default
+   * you can get uers with it
    */
-  async check(ctx) {
-    const { body } = ctx.request;
+  async categories(ctx) {
+    let {
+      page,
+      pagesize = pagination.PAGE_SIZE,
+    } = ctx.query
     try {
-      const category = await Category.findOne({ name: body.name });
-      if (category) {
-        ctx.status = 400;
-        ctx.body = {
-          message: '分类已存在',
+      // 使用分页
+      if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
+        page = parseInt(page, 0)
+        pagesize = parseInt(pagesize, 0)
+        let sortConfig = {}
+        if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
+          sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
         }
-        return;
-      }
-      ctx.status = 200;
-      ctx.body = {
-        message: '分类可以使用',
+
+        const total = await Category.count()
+        const categories = await Category.find()
+          .skip(pagesize * (page - 1))
+          .limit(pagesize)
+          .sort(sortConfig)
+          .select('_id name createTime updateTime')
+        ctx.status = 200
+        ctx.body = {
+          page: {
+            page,
+            pagesize,
+            total,
+          },
+          data: {
+            categories,
+          },
+        }
+      } else {
+        const users = await Category.find()
+          .select('_id name createTime updateTime')
+        ctx.status = 200
+        ctx.body = {
+          data: {
+            users,
+          },
+        }
       }
     } catch (error) {
-      ctx.throw(5000)
+      ctx.throw(500)
     }
   }
 
@@ -39,22 +72,34 @@ class CategoryController {
       if (!body.name) {
         ctx.status = 400;
         ctx.body = {
-          message: '分类名称不能为空',
+          errors: [
+            { name: '分类名称不能为空' },
+          ],
         }
         return;
       }
+      const category = await Category.findOne({ name: body.name });
+      if (category) {
+        ctx.status = 400;
+        ctx.body = {
+          errors: [
+            { name: '分类已存在' },
+          ],
+        }
+        return;
+      }
+
       await Category.create({
         name: body.name,
         createTime: Date.now(),
         updateTime: Date.now(),
       })
-
       ctx.status = 200;
       ctx.body = {
         message: '操作成功',
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -64,25 +109,48 @@ class CategoryController {
    */
   async update(ctx) {
     const { body } = ctx.request
+    const { id } = ctx.params
     try {
-      if (!body.name) {
+      if (!isNullOrUndefined(id) && id !== '') {
+        // 如果 objectId 是有效的
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          let category = await Category.findOne({ name: body.name });
+          if (!category) {
+            category = await Category.findByIdAndUpdate(id, {
+              name: body.name,
+              updateTime: Date.now(),
+            }, { new: true })
+            ctx.status = 200;
+            ctx.body = {
+              message: '操作成功',
+              category,
+            }
+          } else {
+            ctx.status = 400;
+            ctx.body = {
+              errors: [
+                { name: '分类已存在' },
+              ],
+            }
+          }
+        } else {
+          ctx.status = 400;
+          ctx.body = {
+            errors: [
+              { name: 'id不是有效的objectId' },
+            ],
+          }
+        }
+      } else {
         ctx.status = 400;
         ctx.body = {
-          message: '分类名称不能为空',
+          errors: [
+            { name: '分类id不能为空' },
+          ],
         }
-        return;
-      }
-      const category = await Category.findByIdAndUpdate(body.id, {
-        name: body.name,
-        updateTime: Date.now(),
-      })
-      ctx.status = 200;
-      ctx.body = {
-        message: '操作成功',
-        category,
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
   /**
@@ -91,9 +159,9 @@ class CategoryController {
    */
   async remove(ctx) {
     try {
-      const { body } = ctx.request
-      if (body.id) {
-        await Category.findByIdAndRemove(body.id)
+      const { id } = ctx.params
+      if (id) {
+        await Category.findByIdAndRemove(id)
         ctx.status = 200
         ctx.body = {
           message: '操作成功',
@@ -104,25 +172,6 @@ class CategoryController {
     }
   }
 
-  async findCategoryById(ctx) {
-    try {
-      const { body } = ctx.request
-      if (body.id) {
-        const category = await Category.findById(body.id)
-        ctx.status = 200
-        ctx.body = {
-          category,
-        }
-        return;
-      }
-      ctx.status = 400
-      ctx.body = {
-        message: 'id不能为空',
-      }
-    } catch (error) {
-      ctx.throw(500)
-    }
-  }
 }
 
 export default new CategoryController()
