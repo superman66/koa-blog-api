@@ -15,25 +15,25 @@ class UserController {
    * curl -X GET http://localhost:3200/api/users -H 'authorization: Bearer token' -H 'cache-control: no-cache'
    */
   async users(ctx) {
-    let {
-      page,
-      pagesize = pagination.PAGE_SIZE,
-    } = ctx.query
+    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
+    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+
+    const params = {
+      sort: {},
+      filter: {},
+    }
+    params.sort[sortColumn] = orderType
     try {
       // 使用分页
       if (page !== undefined) {
         page = parseInt(page, 0)
         pagesize = parseInt(pagesize, 0)
-        let sortConfig = {}
-        if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
-          sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
-        }
 
         const total = await User.count()
         const users = await User.find()
           .skip(pagesize * (page - 1))
           .limit(pagesize)
-          .sort(sortConfig)
+          .sort(params.sort)
           .select('_id username email gender createTime updateTime')
         ctx.status = 200
         ctx.body = {
@@ -48,6 +48,7 @@ class UserController {
         }
       } else {
         const users = await User.find()
+          .sort(params.sort)
           .select('_id username email gender createTime updateTime')
         ctx.status = 200
         ctx.body = {

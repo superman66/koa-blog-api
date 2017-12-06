@@ -3,6 +3,7 @@ import { isNumber, isNullOrUndefined } from 'util';
 import PostModel from '../../models/Post.model'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 import * as pagination from '../../constants/Pagination'
+
 const Post = mongoose.model('Post')
 
 class PostController {

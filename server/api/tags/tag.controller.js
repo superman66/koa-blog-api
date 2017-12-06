@@ -19,23 +19,24 @@ class TagController {
    * @param {*} ctx
    */
   async tags(ctx) {
-    let {
-      page,
-      pagesize = pagination.PAGE_SIZE,
-    } = ctx.query
+    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
+    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+
+    const params = {
+      sort: {},
+      filter: {},
+    }
+    params.sort[sortColumn] = orderType
+
     try {
-      if (!isNullOrUndefined(page) && isNumber(page)) {
+      if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pagesize = parseInt(pagesize, 0)
-        let sortConfig = {}
-        if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
-          sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
-        }
         const total = await Tag.count()
         const tags = await Tag.find()
           .skip(pagesize * (page - 1))
           .limit(pagesize)
-          .sort(sortConfig)
+          .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
@@ -50,6 +51,7 @@ class TagController {
         }
       } else {
         const tags = await Tag.find()
+          .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
@@ -96,7 +98,7 @@ class TagController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.request.params
+    const { id } = ctx.params
     try {
       if (isNullOrUndefined(id) || id === '') {
         ctx.status = 400
@@ -121,10 +123,10 @@ class TagController {
    */
   async update(ctx) {
     const { name } = ctx.request.body
-    const { id } = ctx.request.params
+    const { id } = ctx.params
     try {
       let tag = await Tag.findOne({ name })
-      if (tag) {
+      if (!tag) {
         tag = await Tag.findByIdAndUpdate(id, ctx.request.body, { new: true })
         ctx.status = 200
         ctx.body = {

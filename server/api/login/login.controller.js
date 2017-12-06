@@ -4,7 +4,6 @@ import jsonwebtoken from 'jsonwebtoken'
 // ensure import UserModel before use model('user')
 import UserModel from '../../models/User.model'
 import { secret } from '../../config/index';
-import objectToFormFieldArray from '../../utils/objectToArray';
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 

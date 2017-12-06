@@ -16,25 +16,26 @@ class CategoryController {
    * you can get uers with it
    */
   async categories(ctx) {
-    let {
-      page,
-      pagesize = pagination.PAGE_SIZE,
-    } = ctx.query
+    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
+    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+
+    const params = {
+      sort: {},
+      filter: {},
+    }
+    params.sort[sortColumn] = orderType
+
     try {
       // 使用分页
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pagesize = parseInt(pagesize, 0)
-        let sortConfig = {}
-        if (ctx.query.sortColumn !== undefined && ctx.query.sortColumn !== '') {
-          sortConfig[ctx.query.sortColumn] = ctx.orderType || pagination.ORDER_TYPE
-        }
 
         const total = await Category.count()
         const categories = await Category.find()
           .skip(pagesize * (page - 1))
           .limit(pagesize)
-          .sort(sortConfig)
+          .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
@@ -49,6 +50,7 @@ class CategoryController {
         }
       } else {
         const users = await Category.find()
+          .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
