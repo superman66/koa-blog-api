@@ -5,10 +5,7 @@ import { PostStatus } from '../constants/PostStatus'
  * 文章Model
  */
 const PostSchema = new Schema({
-  title: {
-    type: String,
-    required: true,
-  },
+  title: String,
   desc: String,
   author: {
     type: Schema.Types.ObjectId,

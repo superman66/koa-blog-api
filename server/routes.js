@@ -16,7 +16,7 @@ export default function (app) {
   router.use('/users', users.routes(), users.allowedMethods())
   router.use('/categories', category.routes(), category.allowedMethods())
   router.use('/comment', comment.routes(), comment.allowedMethods())
-  router.use('/post', post.routes(), post.allowedMethods())
+  router.use('/posts', post.routes(), post.allowedMethods())
   router.use('/tags', tag.routes(), tag.allowedMethods())
   app.use(router.routes())
 }
