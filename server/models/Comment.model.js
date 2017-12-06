@@ -3,7 +3,7 @@ import { CommentStatus } from '../constants/PostStatus';
 
 const CommentSchema = new Schema({
   // 文章id
-  article: {
+  post: {
     type: Schema.Types.ObjectId,
     ref: 'Post',
   },

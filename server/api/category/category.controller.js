@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 import { isNullOrUndefined, isNumber } from 'util';
 import CategoryModel from './../../models/Category.model'
-import objectToFormFieldArray from '../../utils/objectToArray';
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 

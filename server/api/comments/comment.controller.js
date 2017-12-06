@@ -1,9 +1,75 @@
 import mongoose from 'mongoose'
+import { isNullOrUndefined, isNumber } from 'util';
 import CommentModel from '../../models/Comment.model'
+import * as pagination from '../../constants/Pagination'
+import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 
 const Comment = mongoose.model('Comment')
 
 class CommentController {
+
+  /**
+   * 评论分页列表
+   * @param {*} ctx
+   */
+  async comments(ctx) {
+    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
+    const {
+      sortColumn = pagination.SORT_COLUMN,
+      orderType = pagination.ORDER_TYPE,
+      status,
+     } = ctx.query
+    const params = {
+      sort: {},
+      filter: {},
+    }
+    params.sort[sortColumn] = orderType
+    if (status !== null || status !== undefined) {
+      params.filter.status = status
+    }
+
+    try {
+      // 使用分页
+      if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
+        page = parseInt(page, 0)
+        pagesize = parseInt(pagesize, 0)
+
+        const total = await Comment.count()
+        const categories = await Comment.find(params.filter)
+          .populate({
+            path: 'post',
+            select: '_id title desc createTime',
+          })
+          .skip(pagesize * (page - 1))
+          .limit(pagesize)
+          .sort(params.sort)
+          .select('_id article content name website status likes createTime')
+        ctx.status = 200
+        ctx.body = {
+          page: {
+            page,
+            pagesize,
+            total,
+          },
+          data: {
+            categories,
+          },
+        }
+      } else {
+        const users = await Comment.find(params.filter)
+          .sort(params.sort)
+          .select('_id article content name website status likes createTime')
+        ctx.status = 200
+        ctx.body = {
+          data: {
+            users,
+          },
+        }
+      }
+    } catch (error) {
+      formErrorMiddleware(ctx, error)
+    }
+  }
   /**
    * 添加评论
    * @param {*} ctx
@@ -40,7 +106,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -59,7 +125,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 
@@ -80,7 +146,7 @@ class CommentController {
         results: comments,
       }
     } catch (error) {
-      ctx.throw(500)
+      formErrorMiddleware(ctx, error)
     }
   }
 }
