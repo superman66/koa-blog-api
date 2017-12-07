@@ -21,7 +21,9 @@ class LoginController {
       if (!user) {
         ctx.status = 400
         ctx.body = {
-          message: '用户名错误',
+          errors: {
+            username: '用户名错误',
+          },
         }
         return;
       }
@@ -43,7 +45,9 @@ class LoginController {
       } else {
         ctx.status = 400
         ctx.body = {
-          message: '密码错误',
+          errors: {
+            password: '密码错误',
+          },
         }
       }
     } catch (error) {
@@ -82,7 +86,9 @@ class LoginController {
       } else {
         ctx.status = 400;
         ctx.body = {
-          message: '用户名已经存在',
+          errors: {
+            username: '用户名已经存在',
+          },
         }
       }
     } catch (error) {
