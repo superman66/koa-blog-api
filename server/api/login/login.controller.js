@@ -19,7 +19,7 @@ class LoginController {
     try {
       const user = await User.findOne({ username: body.username });
       if (!user) {
-        ctx.status = 401
+        ctx.status = 400
         ctx.body = {
           message: '用户名错误',
         }
@@ -41,7 +41,7 @@ class LoginController {
           },
         }
       } else {
-        ctx.status = 401
+        ctx.status = 400
         ctx.body = {
           message: '密码错误',
         }
