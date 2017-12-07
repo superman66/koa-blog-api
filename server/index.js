@@ -19,6 +19,8 @@ const app = new Koa();
 // apply middlewares
 
 app
+  // cors middleware should be placed in the top
+  .use(cors())
   .use(errorHandle)
   .use(jwt({
     secret,
@@ -29,7 +31,6 @@ app
   .use(logger())
   .use(bodyParser())
   .use(helmet())
-  .use(cors())
 router(app)
 // Start application
 app.listen(port, () => console.log(`✅  The server is running at http://localhost:${port}/`))
