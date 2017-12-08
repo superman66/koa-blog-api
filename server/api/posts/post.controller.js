@@ -11,33 +11,33 @@ class PostController {
    * 获取post分页列表
    *  没有page 参数则默认显示全部
    *  page：当前页数
-   *  pagesize: 每页数量
-   *  sortColunm 排序字段
-   *  orderType desc asc default
+   *  pageSize: 每页数量
+   *  filterColunm 排序字段
+   *  filterOrder desc asc default
    * @param {*} ctx
    */
   async posts(ctx) {
     const {
-      sortColumn = pagination.SORT_COLUMN,
-      orderType = pagination.ORDER_TYPE,
+      filterColumn = pagination.FILTER_COLUMN,
+      filterOrder = pagination.FILTER_ORDER,
       status,
     } = ctx.query
     let {
       page,
-      pagesize = pagination.PAGE_SIZE,
+      pageSize = pagination.PAGE_SIZE,
     } = ctx.query
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[sortColumn] = orderType
+    params.sort[filterColumn] = filterOrder
     if (status !== null && status !== undefined) {
       params.filter.status = status
     }
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
-        pagesize = parseInt(pagesize, 0)
+        pageSize = parseInt(pageSize, 0)
 
 
         const total = await Post.count()
@@ -49,8 +49,8 @@ class PostController {
             path: 'tags',
             select: '_id name createTime',
           })
-          .skip(pagesize * (page - 1))
-          .limit(pagesize)
+          .skip(pageSize * (page - 1))
+          .limit(pageSize)
           .sort(params.sort)
           .select('_id title desc author tags commments status category visitCount createTime updateTime')
         ctx.status = 200
@@ -58,7 +58,7 @@ class PostController {
           data: {
             page: {
               page,
-              pagesize,
+              pageSize,
               total,
             },
             items: posts,

@@ -13,29 +13,32 @@ class TagController {
    * 获取tag分页列表
    *  没有page 参数则默认显示全部
    *  page：当前页数
-   *  pagesize: 每页数量
-   *  sortColunm 排序字段
-   *  orderType desc asc default
+   *  pageSize: 每页数量
+   *  sortColumn 排序字段
+   *  filterOrder desc asc default
    * @param {*} ctx
    */
   async tags(ctx) {
-    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
-    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    const {
+      filterColumn = pagination.FILTER_COLUMN,
+      filterOrder = pagination.FILTER_ORDER,
+     } = ctx.query
 
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[sortColumn] = orderType
+    params.sort[filterColumn] = filterOrder
 
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
-        pagesize = parseInt(pagesize, 0)
+        pageSize = parseInt(pageSize, 0)
         const total = await Tag.count()
         const tags = await Tag.find()
-          .skip(pagesize * (page - 1))
-          .limit(pagesize)
+          .skip(pageSize * (page - 1))
+          .limit(pageSize)
           .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
@@ -43,7 +46,7 @@ class TagController {
           data: {
             page: {
               page,
-              pagesize,
+              pageSize,
               total,
             },
             items: tags,

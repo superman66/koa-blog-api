@@ -9,31 +9,33 @@ const Category = mongoose.model('Category')
 class CategoryController {
   /** 分页列表
    *  page：当前页数
-   *  pagesize: 每页数量
-   *  sortColunm 排序字段
-   *  orderType desc asc default
-   * you can get uers with it
+   *  pageSize: 每页数量
+   *  filterColumn 排序字段
+   *  filterOrder desc asc (default)
    */
   async categories(ctx) {
-    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
-    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    const {
+      filterColumn = pagination.FILTER_COLUMN,
+      filterOrder = pagination.FILTER_ORDER,
+     } = ctx.query
 
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[sortColumn] = orderType
+    params.sort[filterColumn] = filterOrder
 
     try {
       // 使用分页
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
-        pagesize = parseInt(pagesize, 0)
+        pageSize = parseInt(pageSize, 0)
 
         const total = await Category.count()
         const categories = await Category.find()
-          .skip(pagesize * (page - 1))
-          .limit(pagesize)
+          .skip(pageSize * (page - 1))
+          .limit(pageSize)
           .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
@@ -41,7 +43,7 @@ class CategoryController {
           data: {
             page: {
               page,
-              pagesize,
+              pageSize,
               total,
             },
             items: categories,

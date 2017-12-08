@@ -8,31 +8,34 @@ class UserController {
 
   /** 分页列表
    *  page：当前页数
-   *  pagesize: 每页数量
+   *  pageSize: 每页数量
    *  sortColunm 排序字段
-   *  orderType desc asc default
+   *  filterOrder desc asc default
    * you can get uers with it
    * curl -X GET http://localhost:3200/api/users -H 'authorization: Bearer token' -H 'cache-control: no-cache'
    */
   async users(ctx) {
-    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
-    const { sortColumn = pagination.SORT_COLUMN, orderType = pagination.ORDER_TYPE } = ctx.query
+    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    const {
+      filterColumn = pagination.FILTER_COLUMN,
+      filterOrder = pagination.FILTER_ORDER,
+    } = ctx.query
 
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[sortColumn] = orderType
+    params.sort[filterColumn] = filterOrder
     try {
       // 使用分页
       if (page !== undefined) {
         page = parseInt(page, 0)
-        pagesize = parseInt(pagesize, 0)
+        pageSize = parseInt(pageSize, 0)
 
         const total = await User.count()
         const users = await User.find()
-          .skip(pagesize * (page - 1))
-          .limit(pagesize)
+          .skip(pageSize * (page - 1))
+          .limit(pageSize)
           .sort(params.sort)
           .select('_id username email gender createTime updateTime')
         ctx.status = 200
@@ -40,7 +43,7 @@ class UserController {
           data: {
             page: {
               page,
-              pagesize,
+              pageSize,
               total,
             },
             items: users,

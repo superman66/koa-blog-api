@@ -13,17 +13,17 @@ class CommentController {
    * @param {*} ctx
    */
   async comments(ctx) {
-    let { page, pagesize = pagination.PAGE_SIZE } = ctx.query
+    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      sortColumn = pagination.SORT_COLUMN,
-      orderType = pagination.ORDER_TYPE,
+      filterColumn = pagination.FILTER_COLUMN,
+      filterOrder = pagination.FILTER_ORDER,
       status,
      } = ctx.query
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[sortColumn] = orderType
+    params.sort[filterColumn] = filterOrder
     if (status !== null || status !== undefined) {
       params.filter.status = status
     }
@@ -32,7 +32,7 @@ class CommentController {
       // 使用分页
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
-        pagesize = parseInt(pagesize, 0)
+        pageSize = parseInt(pageSize, 0)
 
         const total = await Comment.count()
         const comments = await Comment.find(params.filter)
@@ -40,8 +40,8 @@ class CommentController {
             path: 'post',
             select: '_id title desc createTime',
           })
-          .skip(pagesize * (page - 1))
-          .limit(pagesize)
+          .skip(pageSize * (page - 1))
+          .limit(pageSize)
           .sort(params.sort)
           .select('_id article content name website status likes createTime')
         ctx.status = 200
@@ -49,7 +49,7 @@ class CommentController {
           data: {
             page: {
               page,
-              pagesize,
+              pageSize,
               total,
             },
             items: comments,
