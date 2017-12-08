@@ -31,7 +31,7 @@ class PostController {
       filter: {},
     }
     params.sort[sortColumn] = orderType
-    if (status !== null || status !== undefined) {
+    if (status !== null && status !== undefined) {
       params.filter.status = status
     }
     try {
