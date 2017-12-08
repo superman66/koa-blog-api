@@ -57,6 +57,10 @@ class CommentController {
         }
       } else {
         const comments = await Comment.find(params.filter)
+          .populate({
+            path: 'post',
+            select: '_id title desc createTime',
+          })
           .sort(params.sort)
           .select('_id article content name website status likes createTime')
         ctx.status = 200
