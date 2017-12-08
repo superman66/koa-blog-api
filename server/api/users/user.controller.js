@@ -37,13 +37,13 @@ class UserController {
           .select('_id username email gender createTime updateTime')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            users,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: users,
           },
         }
       } else {
@@ -53,7 +53,7 @@ class UserController {
         ctx.status = 200
         ctx.body = {
           data: {
-            users,
+            items: users,
           },
         }
       }

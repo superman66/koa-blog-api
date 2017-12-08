@@ -55,13 +55,13 @@ class PostController {
           .select('_id title desc author tags commments status category visitCount createTime updateTime')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            posts,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: posts,
           },
         }
       } else {
@@ -78,7 +78,7 @@ class PostController {
         ctx.status = 200
         ctx.body = {
           data: {
-            posts,
+            items: posts,
           },
         }
       }

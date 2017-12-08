@@ -46,13 +46,13 @@ class CommentController {
           .select('_id article content name website status likes createTime')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            comments,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: comments,
           },
         }
       } else {
@@ -66,7 +66,7 @@ class CommentController {
         ctx.status = 200
         ctx.body = {
           data: {
-            comments,
+            items: comments,
           },
         }
       }

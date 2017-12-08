@@ -38,23 +38,23 @@ class CategoryController {
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            categories,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: categories,
           },
         }
       } else {
-        const users = await Category.find()
+        const categories = await Category.find()
           .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
           data: {
-            users,
+            items: categories,
           },
         }
       }

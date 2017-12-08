@@ -43,13 +43,13 @@ class MenuController {
           .select('_id name key link icon children order')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            menus,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: menus,
           },
         }
       } else {
@@ -63,7 +63,7 @@ class MenuController {
         ctx.status = 200
         ctx.body = {
           data: {
-            menus,
+            items: menus,
           },
         }
       }

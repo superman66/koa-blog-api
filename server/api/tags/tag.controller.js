@@ -40,13 +40,13 @@ class TagController {
           .select('_id name createTime updateTime')
         ctx.status = 200
         ctx.body = {
-          page: {
-            page,
-            pagesize,
-            total,
-          },
           data: {
-            tags,
+            page: {
+              page,
+              pagesize,
+              total,
+            },
+            items: tags,
           },
         }
       } else {
@@ -56,7 +56,7 @@ class TagController {
         ctx.status = 200
         ctx.body = {
           data: {
-            tags,
+            items: tags,
           },
         }
       }
