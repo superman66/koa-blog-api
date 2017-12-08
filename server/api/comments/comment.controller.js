@@ -35,7 +35,7 @@ class CommentController {
         pagesize = parseInt(pagesize, 0)
 
         const total = await Comment.count()
-        const categories = await Comment.find(params.filter)
+        const comments = await Comment.find(params.filter)
           .populate({
             path: 'post',
             select: '_id title desc createTime',
@@ -52,17 +52,17 @@ class CommentController {
             total,
           },
           data: {
-            categories,
+            comments,
           },
         }
       } else {
-        const users = await Comment.find(params.filter)
+        const comments = await Comment.find(params.filter)
           .sort(params.sort)
           .select('_id article content name website status likes createTime')
         ctx.status = 200
         ctx.body = {
           data: {
-            users,
+            comments,
           },
         }
       }
