@@ -23,7 +23,7 @@ const MenuSchema = new Schema({
     },
   ],
   // 菜单排序的权重，数字越小越靠前
-  number: {
+  order: {
     type: Number,
     default: 0,
   },

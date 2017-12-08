@@ -18,7 +18,9 @@ class MenuController {
       orderType = pagination.ORDER_TYPE,
      } = ctx.query
     const params = {
-      sort: {},
+      sort: {
+        order: 'asc',
+      },
       filter: {},
     }
     params.sort[sortColumn] = orderType
@@ -52,7 +54,11 @@ class MenuController {
         }
       } else {
         const menus = await Menu.find()
-          .sort({ order: 'desc' })
+          .sort(params.sort)
+          .populate({
+            path: 'children',
+            select: '_id name key link icon children order',
+          })
           .select('_id name key link icon children order')
         ctx.status = 200
         ctx.body = {
@@ -75,6 +81,7 @@ class MenuController {
     try {
       const menu = new Menu(body)
       await menu.save()
+
       ctx.status = 200
       ctx.body = {
         message: '操作成功',
