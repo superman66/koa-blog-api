@@ -5,6 +5,7 @@ import category from './api/category'
 import comment from './api/comments'
 import tag from './api/tags'
 import post from './api/posts'
+import menu from './api/menu'
 import { baseApi } from './config/index'
 
 const router = new Router()
@@ -18,5 +19,6 @@ export default function (app) {
   router.use('/comments', comment.routes(), comment.allowedMethods())
   router.use('/posts', post.routes(), post.allowedMethods())
   router.use('/tags', tag.routes(), tag.allowedMethods())
+  router.use('/menus', menu.routes(), menu.allowedMethods())
   app.use(router.routes())
 }
