@@ -17,10 +17,13 @@ mongoose.Promise = global.Promise
 // create Koa application
 const app = new Koa();
 // apply middlewares
-
+const options = {
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+};
 app
   // cors middleware should be placed in the top
-  .use(cors())
+  .use(cors(options))
   .use(errorHandle)
   .use(jwt({
     secret,
