@@ -128,9 +128,9 @@ class CategoryController {
       } else {
         ctx.status = 400;
         ctx.body = {
-          errors: [
-            { name: '分类名称已存在' },
-          ],
+          errors: {
+            name: '分类名称已存在',
+          },
         }
       }
     } catch (error) {

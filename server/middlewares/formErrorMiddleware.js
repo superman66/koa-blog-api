@@ -1,4 +1,4 @@
-import objectToFormFieldArray from '../utils/objectToArray';
+import formatErrors from '../utils/formatErrors';
 
 export default function formErrorMiddleware(ctx, error) {
   console.log(error);
@@ -22,7 +22,7 @@ export default function formErrorMiddleware(ctx, error) {
   if (error.errors) {
     ctx.status = 400
     ctx.body = {
-      errors: objectToFormFieldArray(error.errors),
+      errors: formatErrors(error.errors),
     }
     return;
   }
