@@ -75,9 +75,7 @@ class CategoryController {
       if (!body.name) {
         ctx.status = 400;
         ctx.body = {
-          errors: [
-            { name: '分类名称不能为空' },
-          ],
+          errors: { name: '分类名称不能为空' },
         }
         return;
       }
@@ -85,9 +83,7 @@ class CategoryController {
       if (category) {
         ctx.status = 400;
         ctx.body = {
-          errors: [
-            { name: '分类已存在' },
-          ],
+          errors: { name: '分类已存在' },
         }
         return;
       }

@@ -23,6 +23,7 @@ class TagController {
     const {
       filterColumn = pagination.FILTER_COLUMN,
       filterOrder = pagination.FILTER_ORDER,
+      word,
      } = ctx.query
 
     const params = {
@@ -88,7 +89,9 @@ class TagController {
       } else {
         ctx.status = 400
         ctx.body = {
-          message: '标签名称已存在',
+          errors: {
+            name: '标签名称已存在',
+          },
         }
       }
     } catch (error) {
@@ -106,7 +109,9 @@ class TagController {
       if (isNullOrUndefined(id) || id === '') {
         ctx.status = 400
         ctx.body = {
-          message: 'id不能为空',
+          errors: {
+            id: 'id不能为空',
+          },
         }
         return;
       }
@@ -141,7 +146,9 @@ class TagController {
       } else {
         ctx.status = 400
         ctx.body = {
-          message: '标签名称已存在',
+          errors: {
+            name: '标签名称已存在',
+          },
         }
       }
     } catch (error) {
