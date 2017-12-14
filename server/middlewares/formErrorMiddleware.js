@@ -15,7 +15,7 @@ export default function formErrorMiddleware(ctx, error) {
   if (error.name === 'CastError') {
     ctx.status = 404
     ctx.body = {
-      message: 'id不存在',
+      message: error.message,
     }
     return;
   }

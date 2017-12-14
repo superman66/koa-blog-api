@@ -3,6 +3,7 @@ import { isNullOrUndefined, isNumber } from 'util';
 import CategoryModel from './../../models/Category.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import { toRegexpQuery } from '../../utils/toRegexpQuery';
 
 const Category = mongoose.model('Category')
 
@@ -10,21 +11,32 @@ class CategoryController {
   /** 分页列表
    *  page：当前页数
    *  pageSize: 每页数量
-   *  filterColumn 排序字段
-   *  filterOrder desc asc (default)
+   *  orderColumn 排序字段
+   *  orderType desc asc (default)
+   *  filterColumn 过滤字段
    */
   async categories(ctx) {
     let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
+      word,
      } = ctx.query
 
     const params = {
       sort: {},
-      filter: {},
+      query: {},
     }
-    params.sort[filterColumn] = filterOrder
+    params.sort[orderColumn] = orderType
+
+    if (word !== undefined || word !== '') {
+      if (filterColumn !== undefined) {
+        params.query = toRegexpQuery(filterColumn, word)
+      } else {
+        params.query = toRegexpQuery(['name'], word)
+      }
+    }
 
     try {
       // 使用分页
@@ -34,6 +46,7 @@ class CategoryController {
 
         const total = await Category.count()
         const categories = await Category.find()
+          .or(params.query)
           .skip(pageSize * (page - 1))
           .limit(pageSize)
           .sort(params.sort)
@@ -51,6 +64,7 @@ class CategoryController {
         }
       } else {
         const categories = await Category.find()
+          .or(params.query)
           .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200

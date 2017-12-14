@@ -3,6 +3,7 @@ import { isNullOrUndefined, isNumber } from 'util';
 import CommentModel from '../../models/Comment.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import { toRegexpQuery } from '../../utils/toRegexpQuery'
 
 const Comment = mongoose.model('Comment')
 
@@ -15,17 +16,28 @@ class CommentController {
   async comments(ctx) {
     let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
       status,
+      word,
      } = ctx.query
     const params = {
       sort: {},
       filter: {},
     }
-    params.sort[filterColumn] = filterOrder
+    params.sort[orderColumn] = orderType
+
     if (status !== null || status !== undefined) {
       params.filter.status = status
+    }
+
+    if (word !== undefined || word !== '') {
+      if (filterColumn !== undefined) {
+        params.query = toRegexpQuery(filterColumn, word)
+      } else {
+        params.query = toRegexpQuery(['username', 'email'], word)
+      }
     }
 
     try {
@@ -36,6 +48,7 @@ class CommentController {
 
         const total = await Comment.count()
         const comments = await Comment.find(params.filter)
+          .or(params.query)
           .populate({
             path: 'post',
             select: '_id title desc createTime',
@@ -57,6 +70,7 @@ class CommentController {
         }
       } else {
         const comments = await Comment.find(params.filter)
+          .or(params.query)
           .populate({
             path: 'post',
             select: '_id title desc createTime',

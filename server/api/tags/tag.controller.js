@@ -3,6 +3,7 @@ import { isNumber, isNullOrUndefined } from 'util';
 import TagModel from '../../models/Tag.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import { toRegexpQuery } from '../../utils/toRegexpQuery';
 
 
 const Tag = mongoose.model('Tag')
@@ -14,30 +15,39 @@ class TagController {
    *  没有page 参数则默认显示全部
    *  page：当前页数
    *  pageSize: 每页数量
-   *  sortColumn 排序字段
-   *  filterOrder desc asc default
+   *  orderColumn 排序字段
+   *  orderType 排序方式
+   *  filterColumn 搜索过滤的字段
+   *  word 搜索关键词
    * @param {*} ctx
    */
   async tags(ctx) {
     let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
       word,
      } = ctx.query
-
     const params = {
       sort: {},
-      filter: {},
+      query: [],
     }
-    params.sort[filterColumn] = filterOrder
-
+    params.sort[orderColumn] = orderType
+    if (word !== undefined || word !== '') {
+      if (filterColumn !== undefined) {
+        params.query = toRegexpQuery(filterColumn, word)
+      } else {
+        params.query = toRegexpQuery(['name'], word)
+      }
+    }
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pageSize = parseInt(pageSize, 0)
         const total = await Tag.count()
         const tags = await Tag.find()
+          .or(params.query)
           .skip(pageSize * (page - 1))
           .limit(pageSize)
           .sort(params.sort)
@@ -55,6 +65,7 @@ class TagController {
         }
       } else {
         const tags = await Tag.find()
+          .or(params.query)
           .sort(params.sort)
           .select('_id name createTime updateTime')
         ctx.status = 200

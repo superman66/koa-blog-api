@@ -3,6 +3,7 @@ import { isNumber, isNullOrUndefined } from 'util';
 import PostModel from '../../models/Post.model'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 import * as pagination from '../../constants/Pagination'
+import { toRegexpQuery } from '../../utils/toRegexpQuery'
 
 const Post = mongoose.model('Post')
 
@@ -12,16 +13,20 @@ class PostController {
    *  没有page 参数则默认显示全部
    *  page：当前页数
    *  pageSize: 每页数量
-   *  filterColunm 排序字段
-   *  filterOrder desc asc default
+   *  orderColumn 排序字段
+   *  orderType desc asc default
+   *  filterColumn 过滤字段
    * @param {*} ctx
    */
   async posts(ctx) {
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
       status,
+      word,
     } = ctx.query
+
     let {
       page,
       pageSize = pagination.PAGE_SIZE,
@@ -30,10 +35,20 @@ class PostController {
       sort: {},
       filter: {},
     }
-    params.sort[filterColumn] = filterOrder
+
+    params.sort[orderColumn] = orderType
     if (status !== null && status !== undefined) {
       params.filter.status = status
     }
+
+    if (word !== undefined || word !== '') {
+      if (filterColumn !== undefined) {
+        params.query = toRegexpQuery(filterColumn, word)
+      } else {
+        params.query = toRegexpQuery(['username', 'email'], word)
+      }
+    }
+
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
@@ -42,6 +57,7 @@ class PostController {
 
         const total = await Post.count()
         const posts = await Post.find(params.filter)
+          .or(params.query)
           .populate('author')
           .populate('comments')
           .populate('category')
@@ -66,6 +82,7 @@ class PostController {
         }
       } else {
         const posts = await Post.find(params.filter)
+          .or(params.query)
           .sort(params.sort)
           .populate('author')
           .populate('comments')

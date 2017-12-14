@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import { toRegexpQuery } from '../../utils/toRegexpQuery'
 
 const User = mongoose.model('User')
 
@@ -10,22 +11,34 @@ class UserController {
    *  page：当前页数
    *  pageSize: 每页数量
    *  sortColunm 排序字段
-   *  filterOrder desc asc default
+   *  orderType 排序方式 （desc asc default）
+   *  filterColumn 搜索过滤字段
    * you can get uers with it
    * curl -X GET http://localhost:3200/api/users -H 'authorization: Bearer token' -H 'cache-control: no-cache'
    */
   async users(ctx) {
     let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
+      word,
     } = ctx.query
 
     const params = {
       sort: {},
-      filter: {},
+      query: {},
     }
-    params.sort[filterColumn] = filterOrder
+    params.sort[orderColumn] = orderType
+
+    if (word !== undefined || word !== '') {
+      if (filterColumn !== undefined) {
+        params.query = toRegexpQuery(filterColumn, word)
+      } else {
+        params.query = toRegexpQuery(['username', 'email'], word)
+      }
+    }
+
     try {
       // 使用分页
       if (page !== undefined) {
@@ -34,6 +47,7 @@ class UserController {
 
         const total = await User.count()
         const users = await User.find()
+          .or(params.query)
           .skip(pageSize * (page - 1))
           .limit(pageSize)
           .sort(params.sort)
@@ -51,6 +65,7 @@ class UserController {
         }
       } else {
         const users = await User.find()
+          .or(params.query)
           .sort(params.sort)
           .select('_id username email gender createTime updateTime')
         ctx.status = 200

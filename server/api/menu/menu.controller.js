@@ -14,8 +14,9 @@ class MenuController {
   async menus(ctx) {
     let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
-      filterColumn = pagination.FILTER_COLUMN,
-      filterOrder = pagination.FILTER_ORDER,
+      orderColumn = pagination.ORDER_COLUMN,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
      } = ctx.query
     const params = {
       sort: {
@@ -23,7 +24,7 @@ class MenuController {
       },
       filter: {},
     }
-    params.sort[filterColumn] = filterOrder
+    params.sort[orderColumn] = orderType
 
     try {
       // 使用分页
