@@ -1,20 +1,27 @@
 {
-    // 使用 IntelliSense 以学习相关的 Node.js 调试属性。
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceRoot}/app.js"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "启动程序",
-            "program": "${file}"
-        }
-    ]
+  // 使用 IntelliSense 以学习相关的 Node.js 调试属性。
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "nodemon",
+      "port": 9229,
+      "restart": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceRoot}/app.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "启动程序",
+      "program": "${file}"
+    }
+  ]
 }
