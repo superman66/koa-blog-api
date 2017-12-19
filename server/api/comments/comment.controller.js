@@ -36,7 +36,7 @@ class CommentController {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
-        params.query = toRegexpQuery(['username', 'email'], word)
+        params.query = toRegexpQuery(['content', 'name', 'website'], word)
       }
     }
 
@@ -129,11 +129,32 @@ class CommentController {
   }
 
   /**
+   * 审核评论
+   * 0-审核失败
+   * 2-审核通过
+   * @param {*} ctx
+   */
+  async review(ctx) {
+    const { id, status } = ctx.query
+    try {
+      if (id) {
+        await Comment.findByIdAndUpdate(id, { status })
+        ctx.status = 200
+        ctx.body = {
+          message: '操作成功',
+        }
+      }
+    } catch (error) {
+      formErrorMiddleware(ctx, error)
+    }
+  }
+
+  /**
    * 删除评论
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.body
+    const { id } = ctx.query
     try {
       if (id) {
         await Comment.findByIdAndUpdate(id)
