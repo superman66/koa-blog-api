@@ -1,9 +1,14 @@
 import mongoose from 'mongoose'
-import { isNumber, isNullOrUndefined } from 'util';
+import {
+  isNumber,
+  isNullOrUndefined,
+} from 'util';
 import TagModel from '../../models/Tag.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
-import { toRegexpQuery } from '../../utils/toRegexpQuery';
+import {
+  toRegexpQuery,
+} from '../../utils/toRegexpQuery';
 
 
 const Tag = mongoose.model('Tag')
@@ -22,19 +27,22 @@ class TagController {
    * @param {*} ctx
    */
   async tags(ctx) {
-    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    let {
+      page,
+      pageSize = pagination.PAGE_SIZE,
+    } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      word,
-     } = ctx.query
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        word,
+    } = ctx.query
     const params = {
       sort: {},
-      query: [],
+      query: {},
     }
     params.sort[orderColumn] = orderType
-    if (word !== undefined || word !== '') {
+    if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
@@ -45,13 +53,13 @@ class TagController {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pageSize = parseInt(pageSize, 0)
+
         const total = await Tag.count()
-        const tags = await Tag.find()
-          .or(params.query)
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id name createTime updateTime')
+        console.log(params);
+        const tags = await Tag
+          .findTagsPagination(page, pageSize, params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -64,10 +72,7 @@ class TagController {
           },
         }
       } else {
-        const tags = await Tag.find()
-          .or(params.query)
-          .sort(params.sort)
-          .select('_id name createTime updateTime')
+        const tags = await Tag.findTags(params).exec()
         ctx.status = 200
         ctx.body = {
           data: {
@@ -85,9 +90,13 @@ class TagController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const { body } = ctx.request
+    const {
+      body,
+    } = ctx.request
     try {
-      let tag = await Tag.findOne({ name: body.name })
+      let tag = await Tag.findOne({
+        name: body.name,
+      })
       if (!tag) {
         tag = await Tag.create(body)
         ctx.status = 200
@@ -115,7 +124,9 @@ class TagController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
       if (isNullOrUndefined(id) || id === '') {
         ctx.status = 400
@@ -141,12 +152,20 @@ class TagController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { name } = ctx.request.body
-    const { id } = ctx.params
+    const {
+      name,
+    } = ctx.request.body
+    const {
+      id,
+    } = ctx.params
     try {
-      let tag = await Tag.findOne({ name })
+      let tag = await Tag.findOne({
+        name,
+      })
       if (!tag) {
-        tag = await Tag.findByIdAndUpdate(id, ctx.request.body, { new: true })
+        tag = await Tag.findByIdAndUpdate(id, ctx.request.body, {
+          new: true,
+        })
         ctx.status = 200
         ctx.body = {
           message: '操作成功',

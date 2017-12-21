@@ -1,4 +1,6 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, {
+  Schema
+} from 'mongoose'
 
 const UserSchema = new Schema({
   username: {
@@ -54,4 +56,23 @@ UserSchema
     }
   })
 
+class UserClass {
+  static findUsersPagination(page, pageSize, params) {
+    return this.find()
+      .or(params.query)
+      .skip(pageSize * (page - 1))
+      .limit(pageSize)
+      .sort(params.sort)
+      .select('username email gender createTime updateTime')
+  }
+
+  static findUsers(params) {
+    return this.find()
+      .or(params.query)
+      .sort(params.sort)
+      .select('username email gender createTime updateTime')
+  }
+}
+
+UserSchema.loadClass(UserClass)
 export default mongoose.model('User', UserSchema)

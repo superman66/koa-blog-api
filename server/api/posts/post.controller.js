@@ -1,9 +1,14 @@
 import mongoose from 'mongoose'
-import { isNumber, isNullOrUndefined } from 'util';
+import {
+  isNumber,
+  isNullOrUndefined,
+} from 'util';
 import PostModel from '../../models/Post.model'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 import * as pagination from '../../constants/Pagination'
-import { toRegexpQuery } from '../../utils/toRegexpQuery'
+import {
+  toRegexpQuery,
+} from '../../utils/toRegexpQuery'
 
 const Post = mongoose.model('Post')
 
@@ -21,10 +26,10 @@ class PostController {
   async posts(ctx) {
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      status,
-      word,
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        status,
+        word,
     } = ctx.query
 
     let {
@@ -33,42 +38,27 @@ class PostController {
     } = ctx.query
     const params = {
       sort: {},
+      query: {},
       filter: {},
     }
 
     params.sort[orderColumn] = orderType
-    if (status !== null && status !== undefined) {
-      params.filter.status = status
-    }
-
-    if (word !== undefined || word !== '') {
+    // if (status !== null && status !== undefined) {
+    //   params.filter.status = status
+    // }
+    if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
-        params.query = toRegexpQuery(['username', 'email'], word)
+        params.query = toRegexpQuery(['title'], word)
       }
     }
-
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pageSize = parseInt(pageSize, 0)
-
-
         const total = await Post.count()
-        const posts = await Post.find(params.filter)
-          .or(params.query)
-          .populate('author')
-          .populate('comments')
-          .populate('category')
-          .populate({
-            path: 'tags',
-            select: '_id name createTime',
-          })
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id title desc author tags commments status category visitCount createTime updateTime')
+        const posts = await Post.findPostsPagination(page, pageSize, params).exec()
         ctx.status = 200
         ctx.body = {
           data: {
@@ -81,17 +71,7 @@ class PostController {
           },
         }
       } else {
-        const posts = await Post.find(params.filter)
-          .or(params.query)
-          .sort(params.sort)
-          .populate('author')
-          .populate('comments')
-          .populate('category')
-          .populate({
-            path: 'tags',
-            select: '_id name createTime',
-          })
-          .select('_id title desc author tags commments status category visitCount createTime updateTime')
+        const posts = await Post.findPosts(params).exec()
         ctx.status = 200
         ctx.body = {
           data: {
@@ -109,7 +89,9 @@ class PostController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const { body } = ctx.request
+    const {
+      body,
+    } = ctx.request
     try {
       const post = new Post(body)
       await post.save()
@@ -127,8 +109,12 @@ class PostController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { body } = ctx.request
-    const { id } = ctx.params
+    const {
+      body,
+    } = ctx.request
+    const {
+      id,
+    } = ctx.params
     try {
       await Post.findByIdAndUpdate(id, body)
       ctx.status = 200
@@ -145,10 +131,16 @@ class PostController {
    * @param {*} ctx
    */
   async changeStatus(ctx) {
-    const { status } = ctx.request.body
-    const { id } = ctx.params
+    const {
+      status,
+    } = ctx.request.body
+    const {
+      id,
+    } = ctx.params
     try {
-      const post = await Post.findByIdAndUpdate(id, { status })
+      const post = await Post.findByIdAndUpdate(id, {
+        status,
+      })
       ctx.status = 200
       ctx.body = {
         message: '操作成功',
@@ -166,7 +158,9 @@ class PostController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
       await Post.findByIdAndRemove(id)
       ctx.status = 200
@@ -183,17 +177,11 @@ class PostController {
    * @param {*} ctx
    */
   async detail(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
-      const post = await Post.findById(id)
-        .populate('author')
-        .populate('comments')
-        .populate('category')
-        .populate({
-          path: 'tags',
-          select: '_id name createTime',
-        })
-        .select('_id title desc author tags commments status category visitCount createTime updateTime')
+      const post = await Post.findPostById(id).exec()
       ctx.status = 200
       ctx.body = {
         data: {

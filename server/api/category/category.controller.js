@@ -1,9 +1,14 @@
 import mongoose from 'mongoose'
-import { isNullOrUndefined, isNumber } from 'util';
+import {
+  isNullOrUndefined,
+  isNumber,
+} from 'util';
 import CategoryModel from './../../models/Category.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
-import { toRegexpQuery } from '../../utils/toRegexpQuery';
+import {
+  toRegexpQuery,
+} from '../../utils/toRegexpQuery';
 
 const Category = mongoose.model('Category')
 
@@ -16,13 +21,16 @@ class CategoryController {
    *  filterColumn 过滤字段
    */
   async categories(ctx) {
-    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    let {
+      page,
+      pageSize = pagination.PAGE_SIZE,
+    } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      word,
-     } = ctx.query
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        word,
+    } = ctx.query
 
     const params = {
       sort: {},
@@ -30,7 +38,7 @@ class CategoryController {
     }
     params.sort[orderColumn] = orderType
 
-    if (word !== undefined || word !== '') {
+    if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
@@ -45,12 +53,8 @@ class CategoryController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await Category.count()
-        const categories = await Category.find()
-          .or(params.query)
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id name createTime updateTime')
+        const categories = await Category.findCategoriesPagination(page, pageSize, params).exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -63,10 +67,8 @@ class CategoryController {
           },
         }
       } else {
-        const categories = await Category.find()
-          .or(params.query)
-          .sort(params.sort)
-          .select('_id name createTime updateTime')
+        const categories = await Category.findCategories(params).exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -84,20 +86,28 @@ class CategoryController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const { body } = ctx.request
+    const {
+      body,
+    } = ctx.request
     try {
       if (!body.name) {
         ctx.status = 400;
         ctx.body = {
-          errors: { name: '分类名称不能为空' },
+          errors: {
+            name: '分类名称不能为空',
+          },
         }
         return;
       }
-      const category = await Category.findOne({ name: body.name });
+      const category = await Category.findOne({
+        name: body.name,
+      });
       if (category) {
         ctx.status = 400;
         ctx.body = {
-          errors: { name: '分类已存在' },
+          errors: {
+            name: '分类已存在',
+          },
         }
         return;
       }
@@ -121,15 +131,23 @@ class CategoryController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { body } = ctx.request
-    const { id } = ctx.params
+    const {
+      body,
+    } = ctx.request
+    const {
+      id,
+    } = ctx.params
     try {
-      let category = await Category.findOne({ name: body.name });
+      let category = await Category.findOne({
+        name: body.name,
+      });
       if (!category) {
         category = await Category.findByIdAndUpdate(id, {
           name: body.name,
           updateTime: Date.now(),
-        }, { new: true })
+        }, {
+          new: true,
+        })
         ctx.status = 200;
         ctx.body = {
           message: '操作成功',
@@ -153,7 +171,9 @@ class CategoryController {
    */
   async remove(ctx) {
     try {
-      const { id } = ctx.params
+      const {
+        id,
+      } = ctx.params
       if (id) {
         await Category.findByIdAndRemove(id)
         ctx.status = 200

@@ -1,9 +1,14 @@
 import mongoose from 'mongoose'
-import { isNullOrUndefined, isNumber } from 'util';
+import {
+  isNullOrUndefined,
+  isNumber,
+} from 'util';
 import CommentModel from '../../models/Comment.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
-import { toRegexpQuery } from '../../utils/toRegexpQuery'
+import {
+  toRegexpQuery,
+} from '../../utils/toRegexpQuery'
 
 const Comment = mongoose.model('Comment')
 
@@ -14,25 +19,29 @@ class CommentController {
    * @param {*} ctx
    */
   async comments(ctx) {
-    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    let {
+      page,
+      pageSize = pagination.PAGE_SIZE,
+    } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      status,
-      word,
-     } = ctx.query
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        status,
+        word,
+    } = ctx.query
     const params = {
       sort: {},
       filter: {},
+      query: {},
     }
     params.sort[orderColumn] = orderType
 
-    if (status !== null || status !== undefined) {
+    if (status !== null && status !== undefined) {
       params.filter.status = status
     }
 
-    if (word !== undefined || word !== '') {
+    if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
@@ -47,16 +56,10 @@ class CommentController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await Comment.count()
-        const comments = await Comment.find(params.filter)
-          .or(params.query)
-          .populate({
-            path: 'post',
-            select: '_id title desc createTime',
-          })
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id article content name website status likes createTime')
+        const comments = await Comment
+          .findCommentsPagination(page, pageSize, params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -69,14 +72,10 @@ class CommentController {
           },
         }
       } else {
-        const comments = await Comment.find(params.filter)
-          .or(params.query)
-          .populate({
-            path: 'post',
-            select: '_id title desc createTime',
-          })
-          .sort(params.sort)
-          .select('_id article content name website status likes createTime')
+        const comments = await Comment
+          .findComments(params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -135,10 +134,15 @@ class CommentController {
    * @param {*} ctx
    */
   async review(ctx) {
-    const { id, status } = ctx.query
+    const {
+      id,
+      status,
+    } = ctx.query
     try {
       if (id) {
-        await Comment.findByIdAndUpdate(id, { status })
+        await Comment.findByIdAndUpdate(id, {
+          status,
+        })
         ctx.status = 200
         ctx.body = {
           message: '操作成功',
@@ -154,7 +158,9 @@ class CommentController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.query
+    const {
+      id,
+    } = ctx.query
     try {
       if (id) {
         await Comment.findByIdAndUpdate(id)
@@ -169,7 +175,9 @@ class CommentController {
   }
 
   async getCommentsById(ctx) {
-    const { article } = ctx.request.body
+    const {
+      article,
+    } = ctx.request.body
 
     try {
       if (article === undefined || article === '') {
@@ -179,7 +187,9 @@ class CommentController {
         }
         return;
       }
-      const comments = await Comment.find({ article })
+      const comments = await Comment.find({
+        article,
+      })
       ctx.status = 200
       ctx.body = {
         results: comments,

@@ -1,5 +1,9 @@
-import mongoose, { Schema } from 'mongoose'
-import { CommentStatus } from '../constants/PostStatus';
+import mongoose, {
+  Schema
+} from 'mongoose'
+import {
+  CommentStatus
+} from '../constants/PostStatus';
 
 const CommentSchema = new Schema({
   // 文章id
@@ -26,4 +30,31 @@ const CommentSchema = new Schema({
   createTime: Date,
 })
 
+class CommentClass {
+  static findCommentsPagination(page, pageSize, params) {
+    return this.find(params.filter)
+      .or(params.query)
+      .populate({
+        path: 'post',
+        select: 'title desc createTime',
+      })
+      .skip(pageSize * (page - 1))
+      .limit(pageSize)
+      .sort(params.sort)
+      .select('article content name website status likes createTime')
+  }
+
+  static findComments(params) {
+    return this.find(params.filter)
+      .or(params.query)
+      .populate({
+        path: 'post',
+        select: 'title desc createTime',
+      })
+      .sort(params.sort)
+      .select('article content name website status likes createTime')
+  }
+}
+
+CommentSchema.loadClass(CommentClass)
 export default mongoose.model('Comment', CommentSchema)

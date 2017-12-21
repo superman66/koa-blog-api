@@ -1,7 +1,9 @@
 import mongoose from 'mongoose'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
-import { toRegexpQuery } from '../../utils/toRegexpQuery'
+import {
+  toRegexpQuery,
+} from '../../utils/toRegexpQuery'
 
 const User = mongoose.model('User')
 
@@ -17,12 +19,15 @@ class UserController {
    * curl -X GET http://localhost:3200/api/users -H 'authorization: Bearer token' -H 'cache-control: no-cache'
    */
   async users(ctx) {
-    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    let {
+      page,
+      pageSize = pagination.PAGE_SIZE,
+    } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      word,
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        word,
     } = ctx.query
 
     const params = {
@@ -31,7 +36,7 @@ class UserController {
     }
     params.sort[orderColumn] = orderType
 
-    if (word !== undefined || word !== '') {
+    if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
         params.query = toRegexpQuery(filterColumn, word)
       } else {
@@ -46,12 +51,10 @@ class UserController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await User.count()
-        const users = await User.find()
-          .or(params.query)
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id username email gender createTime updateTime')
+        const users = await User
+          .findUsersPagination(page, pageSize, params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -64,10 +67,8 @@ class UserController {
           },
         }
       } else {
-        const users = await User.find()
-          .or(params.query)
-          .sort(params.sort)
-          .select('_id username email gender createTime updateTime')
+        const users = await User.findUsers(params).exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -85,17 +86,25 @@ class UserController {
    * @param {*} ctx
    */
   async update(ctx) {
-    let { body } = ctx.request
-    const { id } = ctx.params
+    let {
+      body,
+    } = ctx.request
+    const {
+      id,
+    } = ctx.params
     try {
-      let user = await User.findOne({ username: body.username });
+      let user = await User.findOne({
+        username: body.username,
+      });
       if (!user) {
         /**
          * 关于update后 user 不是最新的的问题，添加 {new: true}
          * https://stackoverflow.com/questions/32811510/mongoose-findoneandupdate-doesnt-return-updated-document
          */
         body.updateTime = Date.now()
-        user = await User.findByIdAndUpdate(id, body, { new: true })
+        user = await User.findByIdAndUpdate(id, body, {
+          new: true,
+        })
         ctx.status = 200
         ctx.body = {
           message: '操作成功',
@@ -117,7 +126,9 @@ class UserController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
       await User.findByIdAndRemove(id)
       ctx.status = 200

@@ -1,5 +1,8 @@
 import mongoose from 'mongoose'
-import { isNullOrUndefined, isNumber } from 'util';
+import {
+  isNullOrUndefined,
+  isNumber,
+} from 'util';
 import MenuModel from '../../models/Menu.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware'
@@ -8,16 +11,19 @@ const Menu = mongoose.model('Menu')
 
 class MenuController {
   /**
- * 菜单分页列表
- * @param {*} ctx
- */
+   * 菜单分页列表
+   * @param {*} ctx
+   */
   async menus(ctx) {
-    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
+    let {
+      page,
+      pageSize = pagination.PAGE_SIZE
+    } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-     } = ctx.query
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+    } = ctx.query
     const params = {
       sort: {
         order: 'asc',
@@ -33,15 +39,10 @@ class MenuController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await Menu.count()
-        const menus = await Menu.find()
-          .populate({
-            path: 'children',
-            select: '_id name key link icon children order',
-          })
-          .skip(pageSize * (page - 1))
-          .limit(pageSize)
-          .sort(params.sort)
-          .select('_id name key link icon children order')
+        const menus = await Menu
+          .findMenusPagination(page, pageSize, params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -54,13 +55,10 @@ class MenuController {
           },
         }
       } else {
-        const menus = await Menu.find()
-          .sort(params.sort)
-          .populate({
-            path: 'children',
-            select: '_id name key link icon children order',
-          })
-          .select('_id name key link icon children order')
+        const menus = await Menu
+          .findMenus(params)
+          .exec()
+
         ctx.status = 200
         ctx.body = {
           data: {
@@ -78,7 +76,9 @@ class MenuController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const { body } = ctx.request
+    const {
+      body,
+    } = ctx.request
     try {
       const menu = new Menu(body)
       await menu.save()
@@ -97,8 +97,12 @@ class MenuController {
    * @param {*} ctx
    */
   async update(ctx) {
-    const { body } = ctx.request
-    const { id } = ctx.params
+    const {
+      body,
+    } = ctx.request
+    const {
+      id,
+    } = ctx.params
     try {
       console.log(body);
       await Menu.findByIdAndUpdate(id, body)
@@ -112,7 +116,9 @@ class MenuController {
   }
 
   async remove(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
       await Menu.findByIdAndRemove(id)
       ctx.status = 200
