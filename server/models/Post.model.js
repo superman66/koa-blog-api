@@ -23,7 +23,7 @@ const PostSchema = new Schema({
   comments: [{
     type: Schema.Types.ObjectId,
     ref: 'Comment',
-  }, ],
+  }],
   // 文章状态, 默认为草稿
   status: {
     type: Number,
@@ -35,7 +35,7 @@ const PostSchema = new Schema({
   },
   visitCount: {
     type: Number,
-    default: 1,
+    default: 0,
   },
   createTime: {
     type: Date,
@@ -97,9 +97,58 @@ class PostClass {
    */
   static findPostById(id) {
     return this.findById(id)
-      .populate('author')
+      .populate({
+        path: 'author',
+        select: 'username email createTime',
+      })
       .populate('comments')
       .populate('category')
+      .populate({
+        path: 'tags',
+        select: ' name createTime',
+      })
+      .select('title desc author content tags commments status category visitCount createTime updateTime')
+  }
+
+  /**
+   * 根据 tag id 查找文章
+   * @param {*} id tag id
+   */
+  static findPostsByTagId(id) {
+    return this.find()
+      .populate({
+        path: 'author',
+        select: 'username email createTime',
+      })
+      .populate('comments')
+      .populate('category')
+      .populate({
+        path: 'tags',
+        match: {
+          _id: id,
+        },
+        select: ' name createTime',
+      })
+      .select('title desc author content tags commments status category visitCount createTime updateTime')
+  }
+
+  /**
+   * 根据 分类 id 查找文章
+   * @param {*} id tag id
+   */
+  static findPostsByCategoryId(id) {
+    return this.find()
+      .populate({
+        path: 'author',
+        select: 'username email createTime',
+      })
+      .populate('comments')
+      .populate({
+        path: 'category',
+        match: {
+          _id: id,
+        },
+      })
       .populate({
         path: 'tags',
         select: ' name createTime',

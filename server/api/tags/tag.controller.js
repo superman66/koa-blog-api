@@ -4,6 +4,7 @@ import {
   isNullOrUndefined,
 } from 'util';
 import TagModel from '../../models/Tag.model'
+import PostModel from '../../models/Post.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 import {
@@ -12,6 +13,7 @@ import {
 
 
 const Tag = mongoose.model('Tag')
+const Post = mongoose.model('Post')
 
 class TagController {
 
@@ -55,7 +57,6 @@ class TagController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await Tag.count()
-        console.log(params);
         const tags = await Tag
           .findTagsPagination(page, pageSize, params)
           .exec()
@@ -137,10 +138,18 @@ class TagController {
         }
         return;
       }
-      await Tag.findByIdAndRemove(id)
-      ctx.status = 200
-      ctx.body = {
-        message: '操作成功',
+      const posts = await Post.findPostsByTagId(id).exec()
+      if (posts.length === 0) {
+        await Tag.findByIdAndRemove(id)
+        ctx.status = 200
+        ctx.body = {
+          message: '操作成功',
+        }
+      } else {
+        ctx.status = 400
+        ctx.body = {
+          message: '该标签下还有文章，无法删除',
+        }
       }
     } catch (error) {
       formErrorMiddleware(ctx, error)

@@ -4,6 +4,7 @@ import {
   isNumber,
 } from 'util';
 import CategoryModel from './../../models/Category.model'
+import PostModel from '../../models/Post.model'
 import * as pagination from '../../constants/Pagination'
 import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../utils/toRegexpQuery';
 
 const Category = mongoose.model('Category')
+const Post = mongoose.model('Post')
 
 class CategoryController {
   /** 分页列表
@@ -175,10 +177,18 @@ class CategoryController {
         id,
       } = ctx.params
       if (id) {
-        await Category.findByIdAndRemove(id)
-        ctx.status = 200
-        ctx.body = {
-          message: '操作成功',
+        const posts = await Post.findPostsByCategoryId(id).exec()
+        if (posts.length === 0) {
+          await Category.findByIdAndRemove(id)
+          ctx.status = 200
+          ctx.body = {
+            message: '操作成功',
+          }
+        } else {
+          ctx.status = 400
+          ctx.body = {
+            message: '该分类下还有文章，无法删除',
+          }
         }
       }
     } catch (error) {
