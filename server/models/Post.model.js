@@ -115,7 +115,12 @@ class PostClass {
    * @param {*} id tag id
    */
   static findPostsByTagId(id) {
-    return this.find()
+    return this
+      .find({
+        tags: {
+          $in: [id],
+        },
+      })
       .populate({
         path: 'author',
         select: 'username email createTime',
@@ -124,9 +129,6 @@ class PostClass {
       .populate('category')
       .populate({
         path: 'tags',
-        match: {
-          _id: id,
-        },
         select: ' name createTime',
       })
       .select('title desc author content tags commments status category visitCount createTime updateTime')
@@ -137,7 +139,12 @@ class PostClass {
    * @param {*} id tag id
    */
   static findPostsByCategoryId(id) {
-    return this.find()
+    return this
+      .find({
+        category: {
+          $in: [id],
+        },
+      })
       .populate({
         path: 'author',
         select: 'username email createTime',
@@ -145,9 +152,6 @@ class PostClass {
       .populate('comments')
       .populate({
         path: 'category',
-        match: {
-          _id: id,
-        },
       })
       .populate({
         path: 'tags',

@@ -189,7 +189,7 @@ class PostController {
         },
       }
     } catch (error) {
-      formErrorMiddleware(error)
+      formErrorMiddleware(ctx, error)
     }
   }
 }

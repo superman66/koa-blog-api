@@ -138,6 +138,7 @@ class TagController {
         }
         return;
       }
+
       const posts = await Post.findPostsByTagId(id).exec()
       if (posts.length === 0) {
         await Tag.findByIdAndRemove(id)
