@@ -3,7 +3,7 @@ import LoginController from './login.controller'
 
 const router = new Router();
 
-router.post('/login', LoginController.login)
-router.post('/register', LoginController.register)
+router.post('admin/login', LoginController.login)
+router.post('admin/register', LoginController.register)
 
 export default router

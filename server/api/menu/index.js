@@ -1,11 +1,12 @@
 import Router from 'koa-router'
 import MenuController from './menu.controller'
 
+const adminPrefix = 'admin/menus'
 const router = new Router()
 
-router.get('/', MenuController.menus)
-router.post('/', MenuController.add)
-router.patch('/:id', MenuController.update)
-router.del('/:id', MenuController.remove)
+router.get(`${adminPrefix}`, MenuController.menus)
+router.post(`${adminPrefix}`, MenuController.add)
+router.patch(`${adminPrefix}/:id`, MenuController.update)
+router.del(`${adminPrefix}/:id`, MenuController.remove)
 
 export default router

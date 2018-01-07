@@ -1,9 +1,14 @@
 import Router from 'koa-router'
 import CommentController from './comment.controller'
 
-const router = new Router()
-router.get('/', CommentController.comments)
-router.post('/', CommentController.add)
-router.del('/:id', CommentController.remove)
+const adminPrefix = 'admin/comments'
 
+const router = new Router()
+// admin api
+router.get(`${adminPrefix}`, CommentController.comments)
+router.post(`${adminPrefix}`, CommentController.add)
+router.del(`${adminPrefix}/:id`, CommentController.remove)
+
+// front api
+router.get('comments', CommentController.comments)
 export default router

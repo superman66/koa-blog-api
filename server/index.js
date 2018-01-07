@@ -8,6 +8,7 @@ import jwt from 'koa-jwt'
 import serve from 'koa-static'
 import router from './routes'
 import { port, connexionString, secret } from './config/index'
+import { PUBLIC_PATH } from './constants/Conf'
 import errorHandle from './middlewares/errorHandle'
 
 mongoose.connect(connexionString)
@@ -15,12 +16,15 @@ mongoose.connect(connexionString)
 mongoose.Promise = global.Promise
 
 // create Koa application
-const app = new Koa();
-// apply middlewares
+const app = new Koa()
+
+// 自定义设置 methods，支持 PATCH 方法，koa-cors 默认不支持
 const options = {
   origin: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 };
+
+// apply middlewares
 app
   // cors middleware should be placed in the top
   .use(cors(options))
@@ -28,7 +32,7 @@ app
   .use(jwt({
     secret,
   }).unless({
-    path: [/\/register/, /\/login/],
+    path: PUBLIC_PATH,
   }))
   .use(serve('./public'))
   .use(logger())
