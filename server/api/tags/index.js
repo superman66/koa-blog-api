@@ -11,5 +11,5 @@ router.del(`${adminPrefix}/:id`, TagController.remove)
 router.patch(`${adminPrefix}/:id`, TagController.update)
 
 // front api
-router.get(`${adminPrefix}`, TagController.tags)
+router.get('tags', TagController.tags)
 export default router

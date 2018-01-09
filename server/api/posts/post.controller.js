@@ -13,6 +13,7 @@ import {
 const Post = mongoose.model('Post')
 
 class PostController {
+
   /**
    * 获取post分页列表
    *  没有page 参数则默认显示全部
@@ -21,15 +22,18 @@ class PostController {
    *  orderColumn 排序字段
    *  orderType desc asc default
    *  filterColumn 过滤字段
+   *  tag 查询包含该标签的所有post
+   *  category 查询该分类的post
    * @param {*} ctx
    */
   async posts(ctx) {
     const {
       orderColumn = pagination.ORDER_COLUMN,
-        filterColumn,
-        orderType = pagination.ORDER_TYPE,
-        status,
-        word,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
+      tag,
+      category,
+      word,
     } = ctx.query
 
     let {
@@ -38,7 +42,10 @@ class PostController {
     } = ctx.query
     const params = {
       sort: {},
-      query: {},
+      query: {
+        or: {},
+        find: {},
+      },
       filter: {},
     }
 
@@ -48,16 +55,30 @@ class PostController {
     // }
     if (word !== undefined && word !== '' && word !== null) {
       if (filterColumn !== undefined) {
-        params.query = toRegexpQuery(filterColumn, word)
+        params.query.or = toRegexpQuery(filterColumn, word)
       } else {
-        params.query = toRegexpQuery(['title'], word)
+        params.query.or = toRegexpQuery(['title'], word)
       }
     }
+    // tag search
+    if (tag !== undefined && tag !== null) {
+      params.query.find = {
+        tags: tag,
+      }
+    }
+
+    // category search
+    if (category !== undefined && category !== null) {
+      params.query.find = {
+        category,
+      }
+    }
+
     try {
       if (!isNullOrUndefined(page) && isNumber(parseInt(page, 0))) {
         page = parseInt(page, 0)
         pageSize = parseInt(pageSize, 0)
-        const total = await Post.count()
+        const total = await Post.getCount(params.query)
         const posts = await Post.findPostsPagination(page, pageSize, params).exec()
         ctx.status = 200
         ctx.body = {
@@ -186,6 +207,24 @@ class PostController {
       ctx.body = {
         data: {
           post,
+        },
+      }
+    } catch (error) {
+      formErrorMiddleware(ctx, error)
+    }
+  }
+
+  async getPostsByTagId(ctx) {
+    const { id } = ctx.params
+    try {
+      const posts = await Post.find({
+        tags: id,
+      })
+      // const posts = await Post.findPostsByTagId(id).exec()
+      ctx.status = 200
+      ctx.body = {
+        data: {
+          items: posts,
         },
       }
     } catch (error) {

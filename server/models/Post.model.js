@@ -48,7 +48,20 @@ const PostSchema = new Schema({
 })
 
 class PostClass {
-
+  /**
+   * 获取列表总长度
+   * @param {*} param
+   */
+  static getCount(param) {
+    const {
+      or = {},
+      find = {},
+  } = param
+    return this
+      .find(find)
+      .or(or)
+      .count()
+  }
   /**
    * 获取 post 分页列表
    * @param {*} page 当前页码
@@ -56,9 +69,10 @@ class PostClass {
    * @param {*} params 查询参数
    */
   static findPostsPagination(page, pageSize, params) {
+    const { sort, query } = params
     return this
-      .find()
-      .or(params.query)
+      .find(query.find)
+      .or(query.or)
       .populate('author')
       .populate('comments')
       .populate('category')
@@ -66,10 +80,10 @@ class PostClass {
         path: 'tags',
         select: '_id name createTime',
       })
-      .sort(params.sort)
+      .sort(sort)
       .skip(pageSize * (page - 1))
       .limit(pageSize)
-      .select('title desc author tags commments status category visitCount createTime updateTime')
+      .select('title desc author tags content commments status category visitCount createTime updateTime')
   }
 
   /**
@@ -77,22 +91,23 @@ class PostClass {
    * @param {*} params
    */
   static findPosts(params) {
+    const { sort, query } = params
     return this
-      .find()
-      .populate('author')
+      .find(query.find)
+      .populate('authors')
       .populate('comments')
       .populate('category')
       .populate({
         path: 'tags',
         select: '_id name createTime',
       })
-      .or(params.query)
-      .sort(params.sort)
-      .select('title desc author tags commments status category visitCount createTime updateTime')
+      .or(query.or)
+      .sort(sort)
+      .select('title desc author tags content commments status category visitCount createTime updateTime')
   }
 
   /**
-   *  根据 post id 获取文章想起
+   *  根据 post id 获取文章详情
    * @param {*} id post id
    */
   static findPostById(id) {
