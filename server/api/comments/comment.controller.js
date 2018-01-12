@@ -5,7 +5,7 @@ import {
 } from 'util';
 import CommentModel from '../../models/Comment.model'
 import * as pagination from '../../constants/Pagination'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 import {
   toRegexpQuery,
 } from '../../utils/toRegexpQuery'
@@ -84,7 +84,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
   /**
@@ -123,7 +123,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -149,7 +149,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -170,7 +170,7 @@ class CommentController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -195,7 +195,7 @@ class CommentController {
         results: comments,
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 }

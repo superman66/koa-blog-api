@@ -4,7 +4,7 @@ import {
   isNullOrUndefined,
 } from 'util';
 import PostModel from '../../models/Post.model'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 import * as pagination from '../../constants/Pagination'
 import {
   toRegexpQuery,
@@ -101,7 +101,7 @@ class PostController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -121,7 +121,7 @@ class PostController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -143,7 +143,7 @@ class PostController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -170,7 +170,7 @@ class PostController {
         },
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -189,7 +189,7 @@ class PostController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -210,7 +210,7 @@ class PostController {
         },
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -228,7 +228,7 @@ class PostController {
         },
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 }

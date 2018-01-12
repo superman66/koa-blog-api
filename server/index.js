@@ -9,7 +9,7 @@ import serve from 'koa-static'
 import router from './routes'
 import { port, connexionString, secret } from './config/index'
 import { PUBLIC_PATH } from './constants/Conf'
-import errorHandle from './middlewares/errorHandle'
+import errorHandleMiddware from './middlewares/errorHandleMiddware'
 
 mongoose.connect(connexionString)
 // mongoose promise 风格 [mongoose.Promise = require('bluebird')]
@@ -28,7 +28,7 @@ const options = {
 app
   // cors middleware should be placed in the top
   .use(cors(options))
-  .use(errorHandle)
+  .use(errorHandleMiddware)
   .use(jwt({
     secret,
   }).unless({

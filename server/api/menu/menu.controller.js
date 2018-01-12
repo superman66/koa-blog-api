@@ -5,7 +5,7 @@ import {
 } from 'util';
 import MenuModel from '../../models/Menu.model'
 import * as pagination from '../../constants/Pagination'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware'
+import errorHanle from '../../utils/errorHandle'
 
 const Menu = mongoose.model('Menu')
 
@@ -67,7 +67,7 @@ class MenuController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -88,7 +88,7 @@ class MenuController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -111,7 +111,7 @@ class MenuController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -126,7 +126,7 @@ class MenuController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 }

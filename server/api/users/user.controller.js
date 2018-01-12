@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as pagination from '../../constants/Pagination'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 import {
   toRegexpQuery,
 } from '../../utils/toRegexpQuery'
@@ -77,7 +77,7 @@ class UserController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -117,7 +117,7 @@ class UserController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -136,9 +136,10 @@ class UserController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
+
 }
 
 export default new UserController()

@@ -1,6 +1,6 @@
 import formatErrors from '../utils/formatErrors';
 
-export default function formErrorMiddleware(ctx, error) {
+export default function errorHanle(ctx, error) {
   console.log(error);
 
   // DuplicateKey Error

@@ -6,7 +6,7 @@ import {
 import CategoryModel from './../../models/Category.model'
 import PostModel from '../../models/Post.model'
 import * as pagination from '../../constants/Pagination'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 import {
   toRegexpQuery,
 } from '../../utils/toRegexpQuery';
@@ -79,7 +79,7 @@ class CategoryController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -124,7 +124,7 @@ class CategoryController {
         message: '操作成功',
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -164,7 +164,7 @@ class CategoryController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
   /**
@@ -192,7 +192,7 @@ class CategoryController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 

@@ -4,7 +4,7 @@
  * @param {*} ctx
  * @param {*} next
  */
-export default async function errorHandle(ctx, next) {
+export default async function errorHandleMiddware(ctx, next) {
   try {
     // if (ctx.response.status === 404) {
     //   ctx.throw(404)

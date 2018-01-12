@@ -4,7 +4,7 @@ import jsonwebtoken from 'jsonwebtoken'
 // ensure import UserModel before use model('user')
 import UserModel from '../../models/User.model'
 import { secret } from '../../config/index';
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 
 
 const User = mongoose.model('User');
@@ -51,7 +51,7 @@ class LoginController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -92,7 +92,7 @@ class LoginController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 

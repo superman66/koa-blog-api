@@ -6,7 +6,7 @@ import {
 import TagModel from '../../models/Tag.model'
 import PostModel from '../../models/Post.model'
 import * as pagination from '../../constants/Pagination'
-import formErrorMiddleware from '../../middlewares/formErrorMiddleware';
+import errorHanle from '../../utils/errorHandle';
 import {
   toRegexpQuery,
 } from '../../utils/toRegexpQuery';
@@ -82,7 +82,7 @@ class TagController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -116,7 +116,7 @@ class TagController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -153,7 +153,7 @@ class TagController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 
@@ -192,7 +192,7 @@ class TagController {
         }
       }
     } catch (error) {
-      formErrorMiddleware(ctx, error)
+      errorHanle(ctx, error)
     }
   }
 }

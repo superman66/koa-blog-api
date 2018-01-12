@@ -35,6 +35,8 @@ const UserSchema = new Schema({
     },
   },
   gender: Number,
+  // 关于我内容
+  aboutMe: String,
   createTime: {
     type: Date,
     default: Date.now(),
