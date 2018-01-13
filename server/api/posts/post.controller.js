@@ -29,11 +29,11 @@ class PostController {
   async posts(ctx) {
     const {
       orderColumn = pagination.ORDER_COLUMN,
-      filterColumn,
-      orderType = pagination.ORDER_TYPE,
-      tag,
-      category,
-      word,
+        filterColumn,
+        orderType = pagination.ORDER_TYPE,
+        tag,
+        category,
+        word,
     } = ctx.query
 
     let {
@@ -57,7 +57,7 @@ class PostController {
       if (filterColumn !== undefined) {
         params.query.or = toRegexpQuery(filterColumn, word)
       } else {
-        params.query.or = toRegexpQuery(['title'], word)
+        params.query.or = toRegexpQuery(['title', 'content'], word)
       }
     }
     // tag search
@@ -215,7 +215,9 @@ class PostController {
   }
 
   async getPostsByTagId(ctx) {
-    const { id } = ctx.params
+    const {
+      id,
+    } = ctx.params
     try {
       const posts = await Post.find({
         tags: id,
@@ -229,6 +231,51 @@ class PostController {
       }
     } catch (error) {
       errorHanle(ctx, error)
+    }
+  }
+
+  /**
+   * 添加文章访问量
+   * @param {*} ctx
+   */
+  async addVisitCount(ctx) {
+    const {
+      id,
+    } = ctx.params
+    try {
+      const post = await Post.findById(id)
+      const visitCount = post.visitCount + 1
+      await Post.findByIdAndUpdate(id, {
+        visitCount,
+      })
+
+      ctx.status = 200
+      ctx.body = {
+        message: '操作成功',
+        data: {
+          visitCount,
+        },
+      }
+    } catch (error) {
+      errorHanle(ctx, error)
+    }
+  }
+
+  async findLastPosts(ctx) {
+    let {
+      limit,
+    } = ctx.query
+    try {
+      limit = isNaN(limit) ? pagination.LIMIT : +limit
+      const posts = await Post.findLastPosts(limit).exec()
+      ctx.status = 200
+      ctx.body = {
+        data: {
+          items: posts,
+        },
+      }
+    } catch (error) {
+      errorHanle(error)
     }
   }
 }

@@ -14,4 +14,6 @@ router.del(`${adminPrefix}/:id`, PostController.remove)
 // front api
 router.get('posts', PostController.posts)
 router.get('posts/:id', PostController.detail)
+router.patch('posts/:id', PostController.addVisitCount)
+router.get('posts/list/last', PostController.findLastPosts)
 export default router

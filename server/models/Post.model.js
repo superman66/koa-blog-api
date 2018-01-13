@@ -35,7 +35,7 @@ const PostSchema = new Schema({
   },
   visitCount: {
     type: Number,
-    default: 0,
+    default: 1,
   },
   createTime: {
     type: Date,
@@ -55,8 +55,8 @@ class PostClass {
   static getCount(param) {
     const {
       or = {},
-      find = {},
-  } = param
+        find = {},
+    } = param
     return this
       .find(find)
       .or(or)
@@ -69,7 +69,10 @@ class PostClass {
    * @param {*} params 查询参数
    */
   static findPostsPagination(page, pageSize, params) {
-    const { sort, query } = params
+    const {
+      sort,
+      query
+    } = params
     return this
       .find(query.find)
       .or(query.or)
@@ -91,7 +94,10 @@ class PostClass {
    * @param {*} params
    */
   static findPosts(params) {
-    const { sort, query } = params
+    const {
+      sort,
+      query
+    } = params
     return this
       .find(query.find)
       .populate('authors')
@@ -106,6 +112,18 @@ class PostClass {
       .select('title desc author tags content commments status category visitCount createTime updateTime')
   }
 
+  /**
+   * 获取最近 limit 条数据
+   */
+  static findLastPosts(limit) {
+    return this
+      .find()
+      .sort({
+        createTime: -1,
+      })
+      .limit(limit)
+      .select('title')
+  }
   /**
    *  根据 post id 获取文章详情
    * @param {*} id post id

@@ -4,3 +4,5 @@ export const PAGE_SIZE = 30
 export const ORDER_TYPE = 'asc'
 // 默认排序字段
 export const ORDER_COLUMN = 'createTime'
+
+export const LIMIT = 10
