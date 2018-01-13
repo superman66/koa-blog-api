@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 import * as pagination from '../../constants/Pagination'
-import errorHanle from '../../utils/errorHandle';
+import errorHanle from '../../utils/errorHandle'
 import {
   toRegexpQuery,
 } from '../../utils/toRegexpQuery'
@@ -81,6 +81,23 @@ class UserController {
     }
   }
 
+  async detail(ctx) {
+    const {
+      id,
+    } = ctx.params
+    try {
+      const user = await User.findById(id)
+      ctx.status = 200
+      ctx.body = {
+        data: {
+          user,
+        },
+      }
+    } catch (error) {
+      errorHanle(ctx, error)
+    }
+  }
+
   /**
    * 编辑用户
    * @param {*} ctx
@@ -139,7 +156,6 @@ class UserController {
       errorHanle(ctx, error)
     }
   }
-
 }
 
 export default new UserController()
