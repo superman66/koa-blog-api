@@ -1,2 +1,4 @@
+logs/
 node_modules/
 .DS_Stroe
+build/
