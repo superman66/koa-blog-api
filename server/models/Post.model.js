@@ -192,6 +192,40 @@ class PostClass {
       })
       .select('title desc author content tags commments status category visitCount createTime updateTime')
   }
+
+  /**
+   * 获取下一篇文章
+   * @param {*} id 当前 post id
+   */
+  static findNextPost(id) {
+    return this
+      .findOne({
+        _id: {
+          $lt: id,
+        },
+      })
+      .sort({
+        _id: -1,
+      })
+      .limit(1)
+  }
+
+  /**
+   * 获取上一篇文章
+   * @param {*} id
+   */
+  static findPrevPost(id) {
+    return this
+      .findOne({
+        _id: {
+          $gt: id,
+        },
+      })
+      .sort({
+        _id: -1,
+      })
+      .limit(1)
+  }
 }
 
 PostSchema.loadClass(PostClass)

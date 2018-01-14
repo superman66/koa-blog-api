@@ -203,10 +203,17 @@ class PostController {
     } = ctx.params
     try {
       const post = await Post.findPostById(id).exec()
+      // 查询上一篇文章
+      const prev = await Post.findPrevPost(id).exec()
+      // 查询下一篇文章
+      const next = await Post.findNextPost(id).exec()
+
       ctx.status = 200
       ctx.body = {
         data: {
           post,
+          prev,
+          next,
         },
       }
     } catch (error) {
