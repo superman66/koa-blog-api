@@ -1,34 +1,25 @@
 import mongoose from 'mongoose'
-import {
-  isNullOrUndefined,
-  isNumber,
-} from 'util';
+import { isNullOrUndefined, isNumber } from 'util'
 import CommentModel from '../../models/Comment.model'
 import * as pagination from '../../constants/Pagination'
-import errorHanle from '../../utils/errorHandle';
-import {
-  toRegexpQuery,
-} from '../../utils/toRegexpQuery'
+import errorHanle from '../../utils/errorHandle'
+import { toRegexpQuery } from '../../utils/toRegexpQuery'
 
 const Comment = mongoose.model('Comment')
 
 class CommentController {
-
   /**
    * 评论分页列表
    * @param {*} ctx
    */
   async comments(ctx) {
-    let {
-      page,
-      pageSize = pagination.PAGE_SIZE,
-    } = ctx.query
+    let { page, pageSize = pagination.PAGE_SIZE } = ctx.query
     const {
       orderColumn = pagination.ORDER_COLUMN,
-        filterColumn,
-        orderType = pagination.ORDER_TYPE,
-        status,
-        word,
+      filterColumn,
+      orderType = pagination.ORDER_TYPE,
+      status,
+      word,
     } = ctx.query
     const params = {
       sort: {},
@@ -56,9 +47,11 @@ class CommentController {
         pageSize = parseInt(pageSize, 0)
 
         const total = await Comment.count()
-        const comments = await Comment
-          .findCommentsPagination(page, pageSize, params)
-          .exec()
+        const comments = await Comment.findCommentsPagination(
+          page,
+          pageSize,
+          params,
+        ).exec()
 
         ctx.status = 200
         ctx.body = {
@@ -72,9 +65,7 @@ class CommentController {
           },
         }
       } else {
-        const comments = await Comment
-          .findComments(params)
-          .exec()
+        const comments = await Comment.findComments(params).exec()
 
         ctx.status = 200
         ctx.body = {
@@ -92,12 +83,7 @@ class CommentController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const {
-      article,
-      content,
-      name,
-      website,
-    } = ctx.request.body;
+    const { article, content, name, website } = ctx.request.body
     try {
       if (article === undefined || article === '') {
         ctx.status = 400
@@ -134,10 +120,7 @@ class CommentController {
    * @param {*} ctx
    */
   async review(ctx) {
-    const {
-      id,
-      status,
-    } = ctx.query
+    const { id, status } = ctx.query
     try {
       if (id) {
         await Comment.findByIdAndUpdate(id, {
@@ -158,9 +141,7 @@ class CommentController {
    * @param {*} ctx
    */
   async remove(ctx) {
-    const {
-      id,
-    } = ctx.query
+    const { id } = ctx.query
     try {
       if (id) {
         await Comment.findByIdAndUpdate(id)
@@ -175,9 +156,7 @@ class CommentController {
   }
 
   async getCommentsById(ctx) {
-    const {
-      article,
-    } = ctx.request.body
+    const { article } = ctx.request.body
 
     try {
       if (article === undefined || article === '') {
@@ -185,7 +164,7 @@ class CommentController {
         ctx.body = {
           message: '文章id不能为空',
         }
-        return;
+        return
       }
       const comments = await Comment.find({
         article,
