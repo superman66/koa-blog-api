@@ -10,5 +10,6 @@ router.post(`${adminPrefix}`, CommentController.add)
 router.del(`${adminPrefix}/:id`, CommentController.remove)
 
 // front api
-router.get('comments', CommentController.comments)
+router.post('comments', CommentController.add)
+router.get('comments/post/:id', CommentController.findCommentsById)
 export default router

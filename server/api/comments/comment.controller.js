@@ -4,6 +4,7 @@ import CommentModel from '../../models/Comment.model'
 import * as pagination from '../../constants/Pagination'
 import errorHanle from '../../utils/errorHandle'
 import { toRegexpQuery } from '../../utils/toRegexpQuery'
+import CommentService from '../../services/comment.service'
 
 const Comment = mongoose.model('Comment')
 
@@ -83,9 +84,9 @@ class CommentController {
    * @param {*} ctx
    */
   async add(ctx) {
-    const { article, content, name, website } = ctx.request.body
+    const { post, content, name, website } = ctx.request.body
     try {
-      if (article === undefined || article === '') {
+      if (post === undefined || post === '') {
         ctx.status = 400
         ctx.body = {
           message: '文章id不能为空',
@@ -96,8 +97,8 @@ class CommentController {
           message: '评论内容不能为空',
         }
       } else {
-        await Comment.create({
-          article,
+        const comment = await Comment.create({
+          post,
           content,
           name,
           website,
@@ -106,6 +107,9 @@ class CommentController {
         ctx.status = 200
         ctx.body = {
           message: '操作成功',
+          data: {
+            comment,
+          },
         }
       }
     } catch (error) {
@@ -120,7 +124,8 @@ class CommentController {
    * @param {*} ctx
    */
   async review(ctx) {
-    const { id, status } = ctx.query
+    const { status } = ctx.request.body
+    const { id } = ctx.params
     try {
       if (id) {
         await Comment.findByIdAndUpdate(id, {
@@ -155,23 +160,26 @@ class CommentController {
     }
   }
 
-  async getCommentsById(ctx) {
-    const { article } = ctx.request.body
-
+  /**
+   * 获取单篇文章的所有评论
+   * @param {*} ctx
+   */
+  async findCommentsById(ctx) {
+    const { id } = ctx.params
     try {
-      if (article === undefined || article === '') {
+      if (id === undefined || id === '') {
         ctx.status = 400
         ctx.body = {
           message: '文章id不能为空',
         }
         return
       }
-      const comments = await Comment.find({
-        article,
-      })
+      const comments = await CommentService.findCommentsByPostId(id)
       ctx.status = 200
       ctx.body = {
-        results: comments,
+        data: {
+          items: comments,
+        },
       }
     } catch (error) {
       errorHanle(ctx, error)
