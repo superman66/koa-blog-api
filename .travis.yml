@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+- '7'
+cache:
+  bundler: true
+  directories:
+  - node_modules
+before_install:
+- openssl aes-256-cbc -K $encrypted_3658cbe75bd7_key -iv $encrypted_3658cbe75bd7_iv
+  -in id_rsa.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa
+- ls -l ~/.ssh
+install:
+- npm install
+script:
+- npm run build
+after_script:
+- scp -P $PORT -r build $SERVER_NAME:www/koa-blog-api
+addons:
+  ssh_known_hosts:
+branches:
+  only:
+  - master
+env:
+  global:
+    secure: exk0fkn3g7C0USxHPGEej4poq0Jt8/9bRgOoO55g5G0Tew+7ezWAO7wGvN/nN7DSsJ4VKa0Eg+ST+tG7CS2fkEJWkahOSBG36dPxEQRGgEXGMtBOBu9UtOyuXONLtHgYQpPg/4swkaOAhfI3cFmAkZxKZajEr/qvih6cHRaLHxY7DtXjYPpIiNEvH36WrbrO+BX6I4LkJM8nBaqB4QwsOffRVZzJ6rF70JCbVz+FcghorLE3BOeDlhL2zHetXLzBrpEn5hq2c33WujjXC12wpaFiXELzUQrDdfBQRu0NC6nrwYIg0WHlPlaBLbcW3czyuXkQpOM/DswVMqrf2iAEoH4H96b5vKxMbZmnxnTnVHAyjkinQBhU34D1JeRHpxoPfqCPwMvlSsbTyVzzURqG4+P1Ed3RAs2EWQaX7gRcx1rzZ/gE8fZkXLs+B6mL0YL/J9/oJIT9eIBDR5o8iftgi2aA4hnM+jGb3bORFbGAFfBFmLwcGqaqI7WEAYOScbxv2seW5+DG/h0r0CiHiPrGt6CJ+QlUT4TYCVDk9uVbCapqqMRwOXr8b3UFW1HxHBTLKQdbZGn3kVKnqvhQJkRQ8k+2WuT3bZ24Ni7VqhTyQysrAAtYkYckg/iNIBvRICZ+gOdUmycLKoHs9Hkpi0o3TGaLpcWBIh391/zjAulD6Ps=
