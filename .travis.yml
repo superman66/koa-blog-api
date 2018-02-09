@@ -10,8 +10,9 @@ before_install:
   -in id_rsa.enc -out ~/.ssh/id_rsa -d
 - chmod 600 ~/.ssh/id_rsa
 - ls -l ~/.ssh
-after_success:
-  - ssh -p $PORT $SERVER_NAME "~/www/deploy.sh"
+install: true
+script:
+  - ssh -p $PORT $SERVER_NAME "sh ~/www/deploy.sh"
 addons:
   ssh_known_hosts:
     secure: oXwortnRV2/FRV8MPVp8qlzsyvlnGML0z8K6c4UOCQt/QiiSSjeBCedvJzIXxY0NnP9fvOQlaZ+xg73w2WTFpbmw0ygNVHPo4cvZYCjxE1unaZHPrlOS6vVHs4oWc3++65WojGV4rBkS/MFcAl8F4tTppXxtBeMRhnih7wmn+LI5Ag14BEph2dlRaEiHoqAGr+s6Cj7+yiZgiQIuLz5xLHmYw2Q1nc0fzNeu3lgqcf0bdzhlYV28ql8PN+ufwbDaO0+ie/zL9ByossHtd3tpN3MAcxhPfBTKaDluDOOy8wBBoQz3Yo4GjaMER0F/c0PAsE2JR1FjSZlvYAyDEMyA+JvaDKbf5XQYqtbAX1962CnMBDCwHMp9rpf6Uf2nmIfFkzUcT/wVie44d11CxFtlhEBqU9h5fra9MYOe0LAEjPTgDnDhADszP24SRH6m8bOMoOhciWKfBugRiQyTHXf21RBEeiHFgPdUI5nyspa9pBjUs+62MnsRBLa0zuSr9PCVfCEFXHIHp4o5Nw4JFQpAnZYQWadT4BretJv2L91WFYV2bf1XzMs12Sym+5HGzpTVY3kIifPZ3ttI0qVdzMIXW82ToaarSEAhrpmCah42SpNW4WsHfuND1plO+oNu3JZxCWiLOa31uwxUZco755JbaZs5AHEcloetu0bFQdprR/c=
